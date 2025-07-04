@@ -46,9 +46,14 @@
 
     #brackets {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      gap: 60px;
+    }
+
+    .bracketColumn {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
     .bracketSlot {
@@ -114,7 +119,7 @@
       <option value="8">8</option>
     </select>
     <div id="personagensLista"></div>
-    <h3>Monte sua chave:</h3>
+    <h3>Monte sua chave de eliminação:</h3>
     <div id="brackets"></div>
     <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
   </div>
@@ -156,19 +161,32 @@
       const tamanho = parseInt(document.getElementById("tamanho").value);
       const brackets = document.getElementById("brackets");
       brackets.innerHTML = "";
-      for (let i = 0; i < tamanho; i++) {
-        const slot = document.createElement("div");
-        slot.className = "bracketSlot";
-        slot.ondragover = (e) => e.preventDefault();
-        slot.ondrop = (e) => {
-          e.preventDefault();
-          const idx = parseInt(e.dataTransfer.getData("text"));
-          const personagem = personagens[idx];
-          slot.innerHTML = `<img src="${personagem.imagem}"><div>${personagem.nome}</div>`;
-          slot.dataset.index = idx;
-        };
-        brackets.appendChild(slot);
+      const col1 = document.createElement("div");
+      col1.className = "bracketColumn";
+      const col2 = document.createElement("div");
+      col2.className = "bracketColumn";
+      for (let i = 0; i < tamanho / 2; i++) {
+        const slot1 = criarSlot();
+        const slot2 = criarSlot();
+        col1.appendChild(slot1);
+        col2.appendChild(slot2);
       }
+      brackets.appendChild(col1);
+      brackets.appendChild(col2);
+    }
+
+    function criarSlot() {
+      const slot = document.createElement("div");
+      slot.className = "bracketSlot";
+      slot.ondragover = (e) => e.preventDefault();
+      slot.ondrop = (e) => {
+        e.preventDefault();
+        const idx = parseInt(e.dataTransfer.getData("text"));
+        const personagem = personagens[idx];
+        slot.innerHTML = `<img src="${personagem.imagem}"><div>${personagem.nome}</div>`;
+        slot.dataset.index = idx;
+      };
+      return slot;
     }
 
     function validarEIniciarTorneio() {
