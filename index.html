@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Copa dos Personagens</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: sans-serif;
@@ -19,6 +18,38 @@
 
     #jogos {
       margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .jogo {
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .personagem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .personagem img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .versus {
+      font-size: 18px;
+      margin: 10px 0;
     }
 
     button {
@@ -34,10 +65,6 @@
     button:hover {
       background-color: #0056b3;
     }
-
-    p {
-      font-size: 18px;
-    }
   </style>
 </head>
 <body>
@@ -47,36 +74,56 @@
 
   <script>
     const personagens = [
-      "Mario", "Luigi", "Link", "Zelda",
-      "Sonic", "Pikachu", "Kirby", "Samus"
+      { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png" },
+      { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png" },
+      { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png" },
+      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" }
     ];
 
     function iniciarCopa() {
       const jogosDiv = document.getElementById("jogos");
       jogosDiv.innerHTML = "";
-      let rodada = [...personagens];
+      const rodada = [...personagens];
       jogarRodada(rodada);
     }
 
     function jogarRodada(participantes) {
       const jogosDiv = document.getElementById("jogos");
-      let novaRodada = [];
-      jogosDiv.innerHTML += `<hr><h3>Rodada (${participantes.length / 2} jogos)</h3>`;
+      const novaRodada = [];
 
       for (let i = 0; i < participantes.length; i += 2) {
         const p1 = participantes[i];
         const p2 = participantes[i + 1];
         const vencedor = Math.random() < 0.5 ? p1 : p2;
         novaRodada.push(vencedor);
-        jogosDiv.innerHTML += `<p>${p1} vs ${p2} ➤ <strong>${vencedor}</strong> venceu!</p>`;
+
+        const jogoBox = document.createElement("div");
+        jogoBox.className = "jogo";
+        jogoBox.innerHTML = `
+          <div class="personagem">
+            <img src="${p1.imagem}" alt="${p1.nome}">
+            <span>${p1.nome}</span>
+          </div>
+          <div class="versus">VS</div>
+          <div class="personagem">
+            <img src="${p2.imagem}" alt="${p2.nome}">
+            <span>${p2.nome}</span>
+          </div>
+          <strong>Vencedor: ${vencedor.nome}</strong>
+        `;
+        jogosDiv.appendChild(jogoBox);
       }
 
       if (novaRodada.length > 1) {
-        setTimeout(() => {
-          jogarRodada(novaRodada);
-        }, 2000);
+        setTimeout(() => jogarRodada(novaRodada), 2500);
       } else {
-        jogosDiv.innerHTML += `<h2>🏆 Campeão: ${novaRodada[0]} 🏆</h2>`;
+        const campeaoBox = document.createElement("div");
+        campeaoBox.className = "jogo";
+        campeaoBox.innerHTML = `
+          <h2>🏆 Campeão: ${novaRodada[0].nome} 🏆</h2>
+          <img src="${novaRodada[0].imagem}" alt="${novaRodada[0].nome}" style="width: 100px; height: 100px; border-radius: 50%; margin-top: 10px;">
+        `;
+        jogosDiv.appendChild(campeaoBox);
       }
     }
   </script>
