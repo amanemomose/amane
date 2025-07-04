@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Copa dos Personagens</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #jogos {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Copa dos Personagens</h1>
+  <div id="jogos"></div>
+  <button onclick="iniciarCopa()">Iniciar Copa</button>
+
+  <script>
+    const personagens = [
+      "Mario", "Luigi", "Link", "Zelda",
+      "Sonic", "Pikachu", "Kirby", "Samus"
+    ];
+
+    function iniciarCopa() {
+      const jogosDiv = document.getElementById("jogos");
+      jogosDiv.innerHTML = "";
+      let rodada = [...personagens];
+      jogarRodada(rodada);
+    }
+
+    function jogarRodada(participantes) {
+      const jogosDiv = document.getElementById("jogos");
+      let novaRodada = [];
+      jogosDiv.innerHTML += `<hr><h3>Rodada (${participantes.length / 2} jogos)</h3>`;
+
+      for (let i = 0; i < participantes.length; i += 2) {
+        const p1 = participantes[i];
+        const p2 = participantes[i + 1];
+        const vencedor = Math.random() < 0.5 ? p1 : p2;
+        novaRodada.push(vencedor);
+        jogosDiv.innerHTML += `<p>${p1} vs ${p2} ➤ <strong>${vencedor}</strong> venceu!</p>`;
+      }
+
+      if (novaRodada.length > 1) {
+        setTimeout(() => {
+          jogarRodada(novaRodada);
+        }, 2000);
+      } else {
+        jogosDiv.innerHTML += `<h2>🏆 Campeão: ${novaRodada[0]} 🏆</h2>`;
+      }
+    }
+  </script>
+</body>
+</html>
