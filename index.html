@@ -25,6 +25,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 15px;
+      margin-bottom: 20px;
     }
 
     .personagemCard {
@@ -33,9 +34,37 @@
       border-radius: 10px;
       width: 150px;
       box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      cursor: grab;
     }
 
     .personagemCard img {
+      width: 100px;
+      height: 100px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    #brackets {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .bracketSlot {
+      width: 150px;
+      height: 150px;
+      background: #ddd;
+      border: 2px dashed #aaa;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 14px;
+    }
+
+    .bracketSlot img {
       width: 100px;
       height: 100px;
       border-radius: 10px;
@@ -78,8 +107,16 @@
   <h1>Copa dos Personagens</h1>
 
   <div id="menu">
+    <label for="tamanho">Tamanho do Torneio: </label>
+    <select id="tamanho">
+      <option value="2">2</option>
+      <option value="4" selected>4</option>
+      <option value="8">8</option>
+    </select>
     <div id="personagensLista"></div>
-    <button onclick="iniciarTorneio()">Iniciar Torneio</button>
+    <h3>Monte sua chave:</h3>
+    <div id="brackets"></div>
+    <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
   </div>
 
   <div id="jogos" style="display:none;"></div>
@@ -90,7 +127,11 @@
       { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png" },
       { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png" },
       { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png" },
-      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" }
+      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" },
+      { nome: "Megumin", imagem: "https://i.imgur.com/9a3IU9B.png" },
+      { nome: "Aqua", imagem: "https://i.imgur.com/qQ5F3T5.png" },
+      { nome: "Miku", imagem: "https://i.imgur.com/nAoVt1r.png" },
+      { nome: "Tohru", imagem: "https://i.imgur.com/fYxDbrl.png" }
     ];
 
     let rodadaAtual = [];
@@ -98,16 +139,51 @@
 
     function criarMenu() {
       const lista = document.getElementById("personagensLista");
-      personagens.forEach(p => {
+      lista.innerHTML = "";
+      personagens.forEach((p, i) => {
         const card = document.createElement("div");
         card.className = "personagemCard";
+        card.draggable = true;
+        card.dataset.index = i;
         card.innerHTML = `<img src="${p.imagem}"><br>${p.nome}`;
+        card.ondragstart = (e) => e.dataTransfer.setData("text/plain", i);
         lista.appendChild(card);
       });
+      gerarBrackets();
     }
 
-    function iniciarTorneio() {
-      rodadaAtual = [...personagens];
+    function gerarBrackets() {
+      const tamanho = parseInt(document.getElementById("tamanho").value);
+      const brackets = document.getElementById("brackets");
+      brackets.innerHTML = "";
+      for (let i = 0; i < tamanho; i++) {
+        const slot = document.createElement("div");
+        slot.className = "bracketSlot";
+        slot.ondragover = (e) => e.preventDefault();
+        slot.ondrop = (e) => {
+          e.preventDefault();
+          const idx = parseInt(e.dataTransfer.getData("text"));
+          const personagem = personagens[idx];
+          slot.innerHTML = `<img src="${personagem.imagem}"><div>${personagem.nome}</div>`;
+          slot.dataset.index = idx;
+        };
+        brackets.appendChild(slot);
+      }
+    }
+
+    function validarEIniciarTorneio() {
+      const slots = document.querySelectorAll(".bracketSlot");
+      const selecionados = [];
+      for (let slot of slots) {
+        if (slot.dataset.index) {
+          selecionados.push(personagens[slot.dataset.index]);
+        }
+      }
+      if (selecionados.length !== slots.length) {
+        alert("Preencha todas as chaves do torneio!");
+        return;
+      }
+      rodadaAtual = [...selecionados];
       document.getElementById("menu").style.display = "none";
       document.getElementById("jogos").style.display = "block";
       jogarRodada();
@@ -126,8 +202,8 @@
       const p1 = rodadaAtual.shift();
       const p2 = rodadaAtual.shift();
       const vencedor = Math.random() < 0.5 ? p1 : p2;
-      vencedores.push(...rodadaAtual); // Armazena os que ainda não lutaram
-      vencedores.unshift(vencedor); // Adiciona o vencedor atual na frente
+      vencedores.push(...rodadaAtual);
+      vencedores.unshift(vencedor);
 
       const jogo = document.createElement("div");
       jogo.className = "jogo";
@@ -142,7 +218,6 @@
         <div class="versus">Vencedor: ${vencedor.nome}</div>
         <img src="${vencedor.imagem}" style="width: 200px; height: 200px; border-radius: 20px; margin-top: 20px;">
       `;
-
       jogosDiv.appendChild(jogo);
 
       const botao = document.createElement("button");
@@ -172,8 +247,10 @@
       document.getElementById("menu").style.display = "block";
       document.getElementById("jogos").style.display = "none";
       document.getElementById("resultadoFinal").style.display = "none";
+      criarMenu();
     }
 
+    document.getElementById("tamanho").onchange = gerarBrackets;
     window.onload = criarMenu;
   </script>
 </body>
