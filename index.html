@@ -6,17 +6,17 @@
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
       background: #f0f0f0;
       margin: 0;
       padding: 20px;
+      text-align: center;
     }
 
     h1 {
       color: #333;
     }
 
-    #menu, #jogos, #resultadoFinal {
+    #menu, #jogos, #resultadoFinal, #visualizarChaves {
       margin-top: 30px;
     }
 
@@ -44,40 +44,43 @@
       object-fit: cover;
     }
 
-    #brackets {
+    #bracketsContainer {
       display: flex;
       justify-content: center;
-      gap: 60px;
+      overflow-x: auto;
+      margin-bottom: 20px;
     }
 
-    .bracketColumn {
+    .bracketStage {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 30px;
+      margin: 0 30px;
     }
 
-    .bracketSlot {
-      width: 150px;
-      height: 150px;
-      background: #ddd;
-      border: 2px dashed #aaa;
+    .bracketMatch {
+      background: white;
+      border: 2px solid #ccc;
       border-radius: 10px;
+      padding: 10px;
+      min-width: 150px;
+      min-height: 150px;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      font-size: 14px;
     }
 
-    .bracketSlot img {
-      width: 100px;
-      height: 100px;
-      border-radius: 10px;
+    .bracketMatch img {
+      width: 80px;
+      height: 80px;
       object-fit: cover;
+      border-radius: 10px;
     }
 
     button {
-      margin-top: 20px;
+      margin-top: 10px;
       padding: 10px 20px;
       font-size: 16px;
       border: none;
@@ -120,12 +123,16 @@
     </select>
     <div id="personagensLista"></div>
     <h3>Monte sua chave de eliminação:</h3>
-    <div id="brackets"></div>
+    <div id="bracketsContainer"><div id="brackets" class="bracketStage"></div></div>
     <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
   </div>
 
   <div id="jogos" style="display:none;"></div>
   <div id="resultadoFinal" style="display:none;"></div>
+  <div id="visualizarChaves" style="display:none;">
+    <h3>Chave Atual:</h3>
+    <div id="chaveAtual" class="bracketStage"></div>
+  </div>
 
   <script>
     const personagens = [
@@ -140,7 +147,8 @@
     ];
 
     let rodadaAtual = [];
-    let vencedores = [];
+    let chaves = [];
+    let fase = 0;
 
     function criarMenu() {
       const lista = document.getElementById("personagensLista");
@@ -161,56 +169,61 @@
       const tamanho = parseInt(document.getElementById("tamanho").value);
       const brackets = document.getElementById("brackets");
       brackets.innerHTML = "";
-      const col1 = document.createElement("div");
-      col1.className = "bracketColumn";
-      const col2 = document.createElement("div");
-      col2.className = "bracketColumn";
-      for (let i = 0; i < tamanho / 2; i++) {
-        const slot1 = criarSlot();
-        const slot2 = criarSlot();
-        col1.appendChild(slot1);
-        col2.appendChild(slot2);
+      for (let i = 0; i < tamanho; i++) {
+        const slot = document.createElement("div");
+        slot.className = "bracketMatch";
+        slot.ondragover = (e) => e.preventDefault();
+        slot.ondrop = (e) => {
+          e.preventDefault();
+          const idx = parseInt(e.dataTransfer.getData("text"));
+          const personagem = personagens[idx];
+          slot.innerHTML = `<img src="${personagem.imagem}"><div>${personagem.nome}</div>`;
+          slot.dataset.index = idx;
+        };
+        brackets.appendChild(slot);
       }
-      brackets.appendChild(col1);
-      brackets.appendChild(col2);
-    }
-
-    function criarSlot() {
-      const slot = document.createElement("div");
-      slot.className = "bracketSlot";
-      slot.ondragover = (e) => e.preventDefault();
-      slot.ondrop = (e) => {
-        e.preventDefault();
-        const idx = parseInt(e.dataTransfer.getData("text"));
-        const personagem = personagens[idx];
-        slot.innerHTML = `<img src="${personagem.imagem}"><div>${personagem.nome}</div>`;
-        slot.dataset.index = idx;
-      };
-      return slot;
     }
 
     function validarEIniciarTorneio() {
-      const slots = document.querySelectorAll(".bracketSlot");
-      const selecionados = [];
+      const slots = document.querySelectorAll(".bracketMatch");
+      rodadaAtual = [];
       for (let slot of slots) {
         if (slot.dataset.index) {
-          selecionados.push(personagens[slot.dataset.index]);
+          rodadaAtual.push(personagens[slot.dataset.index]);
         }
       }
-      if (selecionados.length !== slots.length) {
+      if (rodadaAtual.length !== slots.length) {
         alert("Preencha todas as chaves do torneio!");
         return;
       }
-      rodadaAtual = [...selecionados];
+      chaves = [rodadaAtual.map(p => ({ ...p }))];
+      fase = 0;
       document.getElementById("menu").style.display = "none";
+      document.getElementById("visualizarChaves").style.display = "block";
       document.getElementById("jogos").style.display = "block";
+      atualizarChaves();
       jogarRodada();
+    }
+
+    function atualizarChaves() {
+      const chaveDiv = document.getElementById("chaveAtual");
+      chaveDiv.innerHTML = "";
+      chaves.forEach((rodada, i) => {
+        const faseColuna = document.createElement("div");
+        faseColuna.className = "bracketStage";
+        rodada.forEach(p => {
+          const match = document.createElement("div");
+          match.className = "bracketMatch";
+          match.innerHTML = `<img src="${p.imagem}"><div>${p.nome}</div>`;
+          faseColuna.appendChild(match);
+        });
+        chaveDiv.appendChild(faseColuna);
+      });
     }
 
     function jogarRodada() {
       const jogosDiv = document.getElementById("jogos");
       jogosDiv.innerHTML = "";
-      vencedores = [];
 
       if (rodadaAtual.length === 1) {
         mostrarCampeao(rodadaAtual[0]);
@@ -220,8 +233,6 @@
       const p1 = rodadaAtual.shift();
       const p2 = rodadaAtual.shift();
       const vencedor = Math.random() < 0.5 ? p1 : p2;
-      vencedores.push(...rodadaAtual);
-      vencedores.unshift(vencedor);
 
       const jogo = document.createElement("div");
       jogo.className = "jogo";
@@ -239,9 +250,15 @@
       jogosDiv.appendChild(jogo);
 
       const botao = document.createElement("button");
-      botao.textContent = "Próxima Rodada";
+      botao.textContent = "Próxima Partida";
       botao.onclick = () => {
-        rodadaAtual = [...vencedores];
+        rodadaAtual.push(vencedor);
+        if (rodadaAtual.length % 2 === 1) {
+          chaves[fase + 1] = [...rodadaAtual];
+          rodadaAtual = [...chaves[fase + 1]];
+          fase++;
+          atualizarChaves();
+        }
         jogarRodada();
       };
       jogosDiv.appendChild(botao);
@@ -265,6 +282,7 @@
       document.getElementById("menu").style.display = "block";
       document.getElementById("jogos").style.display = "none";
       document.getElementById("resultadoFinal").style.display = "none";
+      document.getElementById("visualizarChaves").style.display = "none";
       criarMenu();
     }
 
