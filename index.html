@@ -17,60 +17,73 @@
     }
 
     #jogos {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
+      margin-top: 40px;
     }
 
     .jogo {
       background: white;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      padding: 20px;
-      width: 300px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 3px solid #999;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .personagens {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 30px;
     }
 
     .personagem {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
     }
 
     .personagem img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+      width: 200px;
+      height: 200px;
+      border-radius: 20px;
       object-fit: cover;
+      border: 3px solid #555;
     }
 
     .versus {
-      font-size: 18px;
-      margin: 10px 0;
+      font-size: 50px;
+      font-weight: bold;
+      color: #d00;
     }
 
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007bff;
+    #proximaRodada {
+      display: none;
+      padding: 10px 30px;
+      font-size: 18px;
+      background-color: #28a745;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 10px;
       cursor: pointer;
+      margin-top: 20px;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    #proximaRodada:hover {
+      background-color: #218838;
+    }
+
+    .vencedor {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <h1>Copa dos Personagens</h1>
   <div id="jogos"></div>
-  <button onclick="iniciarCopa()">Iniciar Copa</button>
+  <button id="proximaRodada" onclick="jogarProximaRodada()">Próxima Rodada</button>
 
   <script>
     const personagens = [
@@ -80,52 +93,63 @@
       { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" }
     ];
 
+    let rodadaAtual = [];
+    let proximaRodada = [];
+
     function iniciarCopa() {
-      const jogosDiv = document.getElementById("jogos");
-      jogosDiv.innerHTML = "";
-      const rodada = [...personagens];
-      jogarRodada(rodada);
+      rodadaAtual = [...personagens];
+      document.getElementById("jogos").innerHTML = "";
+      document.getElementById("proximaRodada").style.display = "none";
+      jogarProximaRodada();
     }
 
-    function jogarRodada(participantes) {
+    function jogarProximaRodada() {
       const jogosDiv = document.getElementById("jogos");
-      const novaRodada = [];
+      jogosDiv.innerHTML = "";
+      document.getElementById("proximaRodada").style.display = "none";
 
-      for (let i = 0; i < participantes.length; i += 2) {
-        const p1 = participantes[i];
-        const p2 = participantes[i + 1];
-        const vencedor = Math.random() < 0.5 ? p1 : p2;
-        novaRodada.push(vencedor);
+      if (rodadaAtual.length === 1) {
+        const campeao = rodadaAtual[0];
+        jogosDiv.innerHTML = `
+          <div class="jogo">
+            <h2>🏆 Campeão: ${campeao.nome} 🏆</h2>
+            <img src="${campeao.imagem}" style="width: 200px; height: 200px; border-radius: 20px; margin-top: 20px;">
+          </div>`;
+        return;
+      }
 
-        const jogoBox = document.createElement("div");
-        jogoBox.className = "jogo";
-        jogoBox.innerHTML = `
+      proximaRodada = [];
+
+      const p1 = rodadaAtual.shift();
+      const p2 = rodadaAtual.shift();
+      const vencedor = Math.random() < 0.5 ? p1 : p2;
+      proximaRodada.push(vencedor);
+
+      const jogoBox = document.createElement("div");
+      jogoBox.className = "jogo";
+      jogoBox.innerHTML = `
+        <div class="personagens">
           <div class="personagem">
             <img src="${p1.imagem}" alt="${p1.nome}">
-            <span>${p1.nome}</span>
+            <div>${p1.nome}</div>
           </div>
           <div class="versus">VS</div>
           <div class="personagem">
             <img src="${p2.imagem}" alt="${p2.nome}">
-            <span>${p2.nome}</span>
+            <div>${p2.nome}</div>
           </div>
-          <strong>Vencedor: ${vencedor.nome}</strong>
-        `;
-        jogosDiv.appendChild(jogoBox);
-      }
+        </div>
+        <div class="vencedor">Vencedor: ${vencedor.nome}</div>
+      `;
+      jogosDiv.appendChild(jogoBox);
 
-      if (novaRodada.length > 1) {
-        setTimeout(() => jogarRodada(novaRodada), 2500);
-      } else {
-        const campeaoBox = document.createElement("div");
-        campeaoBox.className = "jogo";
-        campeaoBox.innerHTML = `
-          <h2>🏆 Campeão: ${novaRodada[0].nome} 🏆</h2>
-          <img src="${novaRodada[0].imagem}" alt="${novaRodada[0].nome}" style="width: 100px; height: 100px; border-radius: 50%; margin-top: 10px;">
-        `;
-        jogosDiv.appendChild(campeaoBox);
-      }
+      setTimeout(() => {
+        document.getElementById("proximaRodada").style.display = "inline-block";
+      }, 1000);
     }
+
+    // Começa o torneio ao carregar a página
+    window.onload = iniciarCopa;
   </script>
 </body>
 </html>
