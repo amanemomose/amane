@@ -195,6 +195,7 @@
       <option value="80">80</option>
     </select>
     <button onclick="rodarGacha()">Rodar Gacha</button>
+    <button onclick="resetarDesbloqueios()" style="background:#e74c3c;">Resetar Desbloqueios</button>
     <br><br>
     <p>Arraste os personagens desejados para os espaços do torneio:</p>
     <div id="personagensLista"></div>
@@ -257,6 +258,12 @@ let desbloqueados = JSON.parse(localStorage.getItem("desbloqueados")) || [];
 // Salva a lista no localStorage
 function salvarDesbloqueados() {
   localStorage.setItem("desbloqueados", JSON.stringify(desbloqueados));
+}
+function resetarDesbloqueios() {
+  if (confirm("Tem certeza que deseja apagar todos os desbloqueios?")) {
+    localStorage.removeItem("desbloqueados");
+    location.reload();
+  }
 }
 
 // Função para rodar o gacha
