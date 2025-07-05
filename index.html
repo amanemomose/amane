@@ -123,16 +123,14 @@
     </select>
     <div id="personagensLista"></div>
     <h3>Monte sua chave de eliminação:</h3>
-    <div id="bracketsContainer"><div id="brackets" class="bracketStage"></div></div>
+    <div id="bracketsContainer">
+      <div id="brackets" class="bracketStage"></div>
+    </div>
     <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
   </div>
 
   <div id="jogos" style="display:none;"></div>
   <div id="resultadoFinal" style="display:none;"></div>
-  <div id="visualizarChaves" style="display:none;">
-    <h3>Chave Atual:</h3>
-    <div id="chaveAtual" class="bracketStage"></div>
-  </div>
 
   <script>
     const personagens = [
@@ -140,154 +138,129 @@
       { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png" },
       { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png" },
       { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" },
-      { nome: "Megumin", imagem: "https://i.imgur.com/9a3IU9B.png" },
-      { nome: "Aqua", imagem: "https://i.imgur.com/qQ5F3T5.png" },
-      { nome: "Miku", imagem: "https://i.imgur.com/nAoVt1r.png" },
-      { nome: "Tohru", imagem: "https://i.imgur.com/fYxDbrl.png" }
+      { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png" },
+      { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png" },
+      { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png" },
+      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png" }
     ];
 
-    let rodadaAtual = [];
-    let chaves = [];
-    let fase = 0;
+    const personagensLista = document.getElementById("personagensLista");
+    const tamanhoSelect = document.getElementById("tamanho");
+    const brackets = document.getElementById("brackets");
+    const jogosDiv = document.getElementById("jogos");
+    const resultadoFinal = document.getElementById("resultadoFinal");
 
-    function criarMenu() {
-      const lista = document.getElementById("personagensLista");
-      lista.innerHTML = "";
+    function renderPersonagens() {
+      personagensLista.innerHTML = "";
       personagens.forEach((p, i) => {
-        const card = document.createElement("div");
-        card.className = "personagemCard";
-        card.draggable = true;
-        card.dataset.index = i;
-        card.innerHTML = `<img src="${p.imagem}"><br>${p.nome}`;
-        card.ondragstart = (e) => e.dataTransfer.setData("text/plain", i);
-        lista.appendChild(card);
+        const div = document.createElement("div");
+        div.className = "personagemCard";
+        div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
+        div.draggable = true;
+        div.dataset.index = i;
+        div.addEventListener("dragstart", e => {
+          e.dataTransfer.setData("text/plain", i);
+        });
+        personagensLista.appendChild(div);
       });
-      gerarBrackets();
     }
 
-    function gerarBrackets() {
-      const tamanho = parseInt(document.getElementById("tamanho").value);
-      const brackets = document.getElementById("brackets");
+    function criarBrackets(tamanho) {
       brackets.innerHTML = "";
-      for (let i = 0; i < tamanho; i++) {
-        const slot = document.createElement("div");
-        slot.className = "bracketMatch";
-        slot.ondragover = (e) => e.preventDefault();
-        slot.ondrop = (e) => {
-          e.preventDefault();
-          const idx = parseInt(e.dataTransfer.getData("text"));
+      for (let i = 0; i < tamanho / 2; i++) {
+        const div = document.createElement("div");
+        div.className = "bracketMatch";
+        div.ondragover = e => e.preventDefault();
+        div.ondrop = e => {
+          const idx = e.dataTransfer.getData("text/plain");
           const personagem = personagens[idx];
-          slot.innerHTML = `<img src="${personagem.imagem}"><div>${personagem.nome}</div>`;
-          slot.dataset.index = idx;
+          if (div.children.length < 2) {
+            const img = document.createElement("img");
+            img.src = personagem.imagem;
+            img.alt = personagem.nome;
+            img.title = personagem.nome;
+            div.appendChild(img);
+          }
         };
-        brackets.appendChild(slot);
+        brackets.appendChild(div);
       }
     }
 
     function validarEIniciarTorneio() {
-      const slots = document.querySelectorAll(".bracketMatch");
-      rodadaAtual = [];
-      for (let slot of slots) {
-        if (slot.dataset.index) {
-          rodadaAtual.push(personagens[slot.dataset.index]);
+      const partidas = [...brackets.children];
+      let participantes = [];
+      for (const partida of partidas) {
+        if (partida.children.length !== 2) {
+          alert("Todas as partidas devem ter 2 personagens!");
+          return;
         }
+        const imgs = [...partida.children];
+        participantes.push({ nome: imgs[0].title, imagem: imgs[0].src });
+        participantes.push({ nome: imgs[1].title, imagem: imgs[1].src });
       }
-      if (rodadaAtual.length !== slots.length) {
-        alert("Preencha todas as chaves do torneio!");
-        return;
-      }
-      chaves = [rodadaAtual.map(p => ({ ...p }))];
-      fase = 0;
       document.getElementById("menu").style.display = "none";
-      document.getElementById("visualizarChaves").style.display = "block";
-      document.getElementById("jogos").style.display = "block";
-      atualizarChaves();
-      jogarRodada();
+      jogosDiv.style.display = "block";
+      jogarRodada(participantes);
     }
 
-    function atualizarChaves() {
-      const chaveDiv = document.getElementById("chaveAtual");
-      chaveDiv.innerHTML = "";
-      chaves.forEach((rodada, i) => {
-        const faseColuna = document.createElement("div");
-        faseColuna.className = "bracketStage";
-        rodada.forEach(p => {
-          const match = document.createElement("div");
-          match.className = "bracketMatch";
-          match.innerHTML = `<img src="${p.imagem}"><div>${p.nome}</div>`;
-          faseColuna.appendChild(match);
-        });
-        chaveDiv.appendChild(faseColuna);
-      });
-    }
-
-    function jogarRodada() {
-      const jogosDiv = document.getElementById("jogos");
+    function jogarRodada(participantes) {
       jogosDiv.innerHTML = "";
+      const novaRodada = [];
+      let i = 0;
 
-      if (rodadaAtual.length === 1) {
-        mostrarCampeao(rodadaAtual[0]);
-        return;
+      function proximoJogo() {
+        if (i >= participantes.length) {
+          if (novaRodada.length === 1) {
+            exibirCampeao(novaRodada[0]);
+          } else {
+            setTimeout(() => jogarRodada(novaRodada), 1000);
+          }
+          return;
+        }
+
+        const p1 = participantes[i];
+        const p2 = participantes[i + 1];
+        const vencedor = Math.random() < 0.5 ? p1 : p2;
+        novaRodada.push(vencedor);
+
+        const jogo = document.createElement("div");
+        jogo.className = "jogo";
+        jogo.innerHTML = `
+          <div class="personagem">
+            <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
+          </div>
+          <div class="versus">VS</div>
+          <div class="personagem">
+            <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
+          </div>
+          <h2>Vencedor: ${vencedor.nome}</h2>
+        `;
+
+        jogosDiv.appendChild(jogo);
+        i += 2;
+
+        setTimeout(proximoJogo, 2000);
       }
 
-      const p1 = rodadaAtual.shift();
-      const p2 = rodadaAtual.shift();
-      const vencedor = Math.random() < 0.5 ? p1 : p2;
-
-      const jogo = document.createElement("div");
-      jogo.className = "jogo";
-      jogo.innerHTML = `
-        <div class="personagem">
-          <img src="${p1.imagem}"><div>${p1.nome}</div>
-        </div>
-        <div class="versus">VS</div>
-        <div class="personagem">
-          <img src="${p2.imagem}"><div>${p2.nome}</div>
-        </div>
-        <div class="versus">Vencedor: ${vencedor.nome}</div>
-        <img src="${vencedor.imagem}" style="width: 200px; height: 200px; border-radius: 20px; margin-top: 20px;">
-      `;
-      jogosDiv.appendChild(jogo);
-
-      const botao = document.createElement("button");
-      botao.textContent = "Próxima Partida";
-      botao.onclick = () => {
-        rodadaAtual.push(vencedor);
-        if (rodadaAtual.length % 2 === 1) {
-          chaves[fase + 1] = [...rodadaAtual];
-          rodadaAtual = [...chaves[fase + 1]];
-          fase++;
-          atualizarChaves();
-        }
-        jogarRodada();
-      };
-      jogosDiv.appendChild(botao);
+      proximoJogo();
     }
 
-    function mostrarCampeao(campeao) {
-      document.getElementById("jogos").style.display = "none";
-      const final = document.getElementById("resultadoFinal");
-      final.style.display = "block";
-      final.innerHTML = `
-        <div>
-          <h2>🏆 CAMPEÃO 🏆</h2>
-          <img src="${campeao.imagem}" style="width: 250px; height: 250px; border-radius: 30px;">
-          <h3>${campeao.nome}</h3>
-          <button onclick="voltarInicio()">Voltar ao Início</button>
-        </div>
+    function exibirCampeao(vencedor) {
+      resultadoFinal.style.display = "block";
+      resultadoFinal.innerHTML = `
+        <h2>🏆 Campeão: ${vencedor.nome} 🏆</h2>
+        <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width: 200px; height: 200px; border-radius: 20px;">
+        <br><br>
+        <button onclick="location.reload()">Voltar ao Início</button>
       `;
     }
 
-    function voltarInicio() {
-      document.getElementById("menu").style.display = "block";
-      document.getElementById("jogos").style.display = "none";
-      document.getElementById("resultadoFinal").style.display = "none";
-      document.getElementById("visualizarChaves").style.display = "none";
-      criarMenu();
-    }
+    tamanhoSelect.addEventListener("change", () => {
+      criarBrackets(Number(tamanhoSelect.value));
+    });
 
-    document.getElementById("tamanho").onchange = gerarBrackets;
-    window.onload = criarMenu;
+    renderPersonagens();
+    criarBrackets(Number(tamanhoSelect.value));
   </script>
 </body>
 </html>
