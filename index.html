@@ -1,177 +1,160 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Copa dos Personagens - Modo Equipe</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      background: #f0f0f0;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .personagemCard {
-      display: inline-block;
-      margin: 10px;
-      cursor: grab;
-      border: 2px solid #444;
-      border-radius: 10px;
-      background: white;
-      width: 130px;
-      padding: 10px;
-      user-select: none;
-    }
-
-    .personagemCard img {
-      width: 100px;
-      height: 100px;
-      border-radius: 10px;
-    }
-
-    .status {
-      text-align: left;
-      font-size: 14px;
-      margin-top: 8px;
-      line-height: 1.3;
-    }
-
-    #brackets {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-
-    .bracketMatch {
-      border: 2px dashed #999;
-      padding: 10px;
-      width: 160px;
-      min-height: 360px;
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      justify-content: center;
-      background-color: white;
-      border-radius: 10px;
-    }
-
-    .bracketMatch img {
-      width: 50px;
-      height: 50px;
-      border-radius: 5px;
-      margin: 3px;
-    }
-
-    .jogo {
-      margin: 30px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 800px;
-    }
-
-    .versus {
-      font-weight: bold;
-      font-size: 48px;
-      margin: 0 20px;
-      user-select: none;
-    }
-
-    .personagem {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 220px;
-      user-select: none;
-    }
-
-    .personagem img {
-      width: 200px;
-      height: 200px;
-      border-radius: 20px;
-    }
-
-    .statusLuta {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 18px;
-    }
-
-    .statusValores {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-      font-family: monospace;
-      font-size: 16px;
-    }
-
-    .placar {
-      font-size: 22px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 6px;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      transition: background-color 0.3s ease;
-      user-select: none;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #modoSelect {
-      margin-bottom: 20px;
-      font-size: 18px;
-      padding: 6px;
-    }
-
-    #avisoEquipe {
-      color: #c00;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Copa dos Personagens - Modo Equipe Corrigido</title>
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+  }
+  .personagemCard {
+    display: inline-block;
+    margin: 10px;
+    cursor: grab;
+    border: 2px solid #444;
+    border-radius: 10px;
+    background: white;
+    width: 130px;
+    padding: 10px;
+    user-select: none;
+  }
+  .personagemCard img {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+  }
+  .status {
+    text-align: left;
+    font-size: 14px;
+    margin-top: 8px;
+    line-height: 1.3;
+  }
+  #brackets {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .bracketMatch {
+    border: 2px dashed #999;
+    padding: 10px;
+    width: 160px;
+    min-height: 360px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    background-color: white;
+    border-radius: 10px;
+  }
+  .bracketMatch img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin: 3px;
+  }
+  .jogo {
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 800px;
+  }
+  .versus {
+    font-weight: bold;
+    font-size: 48px;
+    margin: 0 20px;
+    user-select: none;
+  }
+  .personagem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 220px;
+    user-select: none;
+  }
+  .personagem img {
+    width: 200px;
+    height: 200px;
+    border-radius: 20px;
+  }
+  .statusLuta {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .statusValores {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    font-family: monospace;
+    font-size: 16px;
+  }
+  .placar {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    margin-top: 10px;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  #modoSelect {
+    margin-bottom: 20px;
+    font-size: 18px;
+    padding: 6px;
+  }
+  #avisoEquipe {
+    color: #c00;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+</style>
 </head>
 <body>
-  <div id="menu">
-    <h1>Copa dos Personagens - Com Status e Modo Equipe</h1>
+<div id="menu">
+  <h1>Copa dos Personagens - Com Status e Modo Equipe</h1>
 
-    <label for="modoSelect">Modo:</label>
-    <select id="modoSelect">
-      <option value="individual" selected>Individual</option>
-      <option value="equipe">Equipe (5 personagens por time)</option>
-    </select>
+  <label for="modoSelect">Modo:</label>
+  <select id="modoSelect">
+    <option value="individual" selected>Individual</option>
+    <option value="equipe">Equipe (5 personagens por time)</option>
+  </select>
 
-    <br><br>
+  <br><br>
 
-    <label for="tamanho">Tamanho do torneio:</label>
-    <select id="tamanho">
-      <option value="4">4 Participantes</option>
-      <option value="8" selected>8 Participantes</option>
-    </select>
+  <label for="tamanho">Tamanho do torneio:</label>
+  <select id="tamanho">
+    <option value="4">4 Participantes</option>
+    <option value="8" selected>8 Participantes</option>
+  </select>
 
-    <h2>Arraste os personagens para as chaves:</h2>
-    <div id="avisoEquipe" style="display:none;">No modo equipe, cada time deve ter 5 personagens (arraste 5 para cada caixa)</div>
-    <div id="personagensLista"></div>
-    <div id="brackets"></div>
-    <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
-  </div>
+  <h2>Arraste os personagens para as chaves:</h2>
+  <div id="avisoEquipe" style="display:none;">No modo equipe, cada time deve ter 5 personagens (arraste 5 para cada caixa)</div>
+  <div id="personagensLista"></div>
+  <div id="brackets"></div>
+  <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
+</div>
 
-  <div id="jogos" style="display:none;"></div>
-  <div id="resultadoFinal" style="display:none;"></div>
+<div id="jogos" style="display:none;"></div>
+<div id="resultadoFinal" style="display:none;"></div>
 
 <script>
   const categorias = ["F", "S", "P", "I", "C"];
@@ -242,8 +225,9 @@
           const idx = e.dataTransfer.getData("text/plain");
           const personagem = personagens[idx];
           if (div.children.length < 5) {
+            // Evitar personagens duplicados no mesmo time
             for (let child of div.children) {
-              if (child.dataset.idx === idx) return; // não permite duplicar personagem no mesmo time
+              if (child.dataset.idx === idx) return;
             }
             const img = document.createElement("img");
             img.src = personagem.imagem;
@@ -338,7 +322,7 @@
         return;
       }
 
-      // Exibir duelo equipe atual
+      // Começa os 5 duelos da partida de equipes
       placarEquipe1 = 0;
       placarEquipe2 = 0;
       subDueloIndex = 0;
@@ -453,6 +437,7 @@
     if (vencedorDuelista === 1) placarEquipe1++;
     else placarEquipe2++;
 
+    // Mostra resultado parcial, e aguarda próximo duelo ou fim
     jogosDiv.innerHTML += `<p><strong>Duelo de ${cat} vencido por: Equipe ${vencedorDuelista}</strong></p>`;
 
     subDueloIndex++;
@@ -514,6 +499,5 @@
   renderPersonagens();
   criarBrackets(Number(tamanhoSelect.value));
 </script>
-
 </body>
 </html>
