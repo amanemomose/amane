@@ -234,6 +234,7 @@
         card.draggable = true;
         card.dataset.index = i;
         card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
+        card.onclick = () => abrirPerfil(p);
         card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", i));
         lista.appendChild(card);
       });
@@ -348,14 +349,14 @@
         <div class="card">
           <img src="${p1.imagem}" alt="${p1.nome}">
           <h3>${p1.nome}</h3>
-          <div class="status">F:${p1.F} S:${p1.S} P:${p1.P} I:${p1.I} C:${p1.C}</div>
+          <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
           <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
         </div>
         <div class="versus">VS</div>
         <div class="card">
           <img src="${p2.imagem}" alt="${p2.nome}">
           <h3>${p2.nome}</h3>
-          <div class="status">F:${p2.F} S:${p2.S} P:${p2.P} I:${p2.I} C:${p2.C}</div>
+          <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
           <button onclick="selecionarVencedor(${rodadaIndex}, 1)">Escolher</button>
         </div>
       `;
@@ -411,6 +412,7 @@
 
     renderPersonagens();
     criarBrackets();
+    <div id="perfilPopup"></div>
   </script>
 </body>
 </html>
