@@ -194,6 +194,7 @@
     <div id="brackets" class="brackets"></div>
     <button onclick="preencherAutomaticamente()">Preencher Automaticamente</button>
     <button onclick="iniciarTorneio()">Iniciar Torneio</button>
+    <button onclick="iniciarTorneioTimes()">Iniciar Torneio por Times</button>
   </div>
 
   <div id="jogos" style="display:none;"></div>
@@ -297,12 +298,8 @@
     function preencherAutomaticamente() {
   // Identifica os índices dos slots vazios
   const slotsVazios = brackets.map((p, i) => p ? null : i).filter(i => i !== null);
-
-  // Filtra os personagens ainda disponíveis
   const usados = new Set(brackets.filter(p => p).map(p => p.nome));
   const disponiveis = personagens.filter(p => !usados.has(p.nome));
-
-  // Embaralha os personagens disponíveis e os slots vazios
   function embaralhar(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -326,7 +323,7 @@
   renderPersonagens();
 }
 
-    function iniciarTorneio() {
+    function iniciarTorneioIndividual() {
       const preenchidos = brackets.filter(Boolean);
       if (preenchidos.length < 2 || preenchidos.length % 2 !== 0) {
         alert("Número inválido de participantes (mínimo 2, número par).");
@@ -337,10 +334,11 @@
       document.getElementById("jogos").style.display = "block";
       rodadaIndex = 0;
       proximaRodada = [];
-      mostrarPartida();
+      modoTimes = false;
+      mostrarPartidaIndividual();
     }
 
-    function mostrarPartida() {
+    function mostrarPartidaIndividual() {
   const container = document.getElementById("jogos");
   container.innerHTML = "";
 
@@ -374,7 +372,7 @@
   `;
   container.appendChild(jogo);
 }
-    function selecionarVencedor(index, escolha) {
+  function selecionarVencedorIndividual(index, escolha) {
   const p1 = rodadaAtual[index];
   const p2 = rodadaAtual[index + 1];
 
@@ -384,13 +382,13 @@
   rodadaIndex += 2;
 
   if (rodadaIndex >= rodadaAtual.length) {
-    mostrarResumoRodada();
+    mostrarResumoRodadaIndividual();
   } else {
-    mostrarPartida();
+    mostrarPartidaIndividual();
   }
 }
     
-    function mostrarResumoRodada() {
+    function mostrarResumoRodadaIndividual() {
       document.getElementById("jogos").style.display = "none";
       const resumo = document.getElementById("resumoRodada");
       resumo.style.display = "block";
@@ -404,21 +402,217 @@
       });
     }
 
-    function continuarRodada() {
+    function continuarRodadaIndividual() {
       document.getElementById("resumoRodada").style.display = "none";
       document.getElementById("jogos").style.display = "block";
       rodadaAtual = [...proximaRodada];
       proximaRodada = [];
       rodadaIndex = 0;
-      mostrarPartida();
+      mostrarPartidaIndividual();
     }
 
-    function exibirCampeao(vencedor) {
+        // --- MODO TIMES ---
+
+    let modoTimes = false;
+    let times = [];
+    let rodadaAtualTimes = [];
+    let proximaRodadaTimes = [];
+    let rodadaIndexTimes = 0;
+    const tamanhoTime = 5;
+
+    // Função para iniciar torneio por times
+    function iniciarTorneioTimes() {
+      // Valida que o total de personagens escolhidos é múltiplo de 10 (2 times mínimo, cada um com 5)
+      const preenchidos = brackets.filter(Boolean);
+      if (preenchidos.length < 10 || preenchidos.length % 10 !== 0) {
+        alert("Número inválido para torneio por times. Deve ser múltiplo de 10 (times de 5 personagens).");
+        return;
+      }
+      modoTimes = true;
+
+      // Dividir personagens em times de 5
+      times = [];
+      for (let i = 0; i < preenchidos.length; i += tamanhoTime) {
+        times.push(preenchidos.slice(i, i + tamanhoTime));
+      }
+
+      rodadaAtualTimes = [...times];
+      rodadaIndexTimes = 0;
+      proximaRodadaTimes = [];
+
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("jogos").style.display = "block";
+      mostrarPartidaTimes();
+    }
+
+    // Mostra o confronto entre dois times (5x5)
+    function mostrarPartidaTimes() {
+      const container = document.getElementById("jogos");
+      container.innerHTML = "";
+
+      if (rodadaAtualTimes.length === 1) return exibirCampeaoTimes(rodadaAtualTimes[0]);
+
+      const time1 = rodadaAtualTimes[rodadaIndexTimes];
+      const time2 = rodadaAtualTimes[rodadaIndexTimes + 1];
+
+      // Sorteia categorias para cada duelo individual, 5 categorias diferentes para os 5 personagens
+      let categoriasSorteadas = [];
+      while (categoriasSorteadas.length < tamanhoTime) {
+        let c = categorias[Math.floor(Math.random() * categorias.length)];
+        if (!categoriasSorteadas.includes(c)) categoriasSorteadas.push(c);
+      }
+
+      // Construir HTML da disputa 5x5
+      const jogo = document.createElement("div");
+      jogo.innerHTML = `<h2>Confronto entre Times (${rodadaIndexTimes/2 + 1})</h2>`;
+      jogo.className = "jogo";
+      const flexContainer = document.createElement("div");
+      flexContainer.style.display = "flex";
+      flexContainer.style.justifyContent = "space-around";
+      flexContainer.style.flexWrap = "wrap";
+
+      // Mostrar os 5 duelos lado a lado, com botões para escolher vencedor de cada duelo
+      for (let i = 0; i < tamanhoTime; i++) {
+        const p1 = time1[i];
+        const p2 = time2[i];
+        const cat = categoriasSorteadas[i];
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.width = "180px";
+        card.style.margin = "10px";
+        card.style.textAlign = "center";
+        card.style.border = "1px solid #ccc";
+        card.style.borderRadius = "10px";
+        card.style.padding = "10px";
+        card.innerHTML = `
+          <h4>Duelo ${i + 1} (${cat})</h4>
+          <div>
+            <img src="${p1.imagem}" alt="${p1.nome}" style="width: 80px; border-radius: 10px;">
+            <p>${p1.nome}</p>
+            <p><b>${cat}:</b> ${p1[cat]}</p>
+            <button onclick="selecionarVencedorTime(${rodadaIndexTimes}, ${i}, 0)">Vencer</button>
+          </div>
+          <div style="margin-top:10px;">
+            <img src="${p2.imagem}" alt="${p2.nome}" style="width: 80px; border-radius: 10px;">
+            <p>${p2.nome}</p>
+            <p><b>${cat}:</b> ${p2[cat]}</p>
+            <button onclick="selecionarVencedorTime(${rodadaIndexTimes}, ${i}, 1)">Vencer</button>
+          </div>
+        `;
+        flexContainer.appendChild(card);
+      }
+
+      jogo.appendChild(flexContainer);
+      container.appendChild(jogo);
+
+      // Guardar placar parcial dos duelos para o confronto atual
+      dueloResultados = Array(tamanhoTime).fill(null);
+    }
+
+    // Array para guardar resultados parciais dos duelos (quem ganhou cada duelo 0 ou 1)
+    let dueloResultados = [];
+
+    // Função para selecionar vencedor do duelo i no confronto entre times na posição rodadaIndexTimes
+    function selecionarVencedorTime(rodadaIdx, dueloIdx, vencedor) {
+      if (rodadaIdx !== rodadaIndexTimes) return; // evita cliques errados
+
+      dueloResultados[dueloIdx] = vencedor; // registra o vencedor do duelo
+
+      // Desabilitar os botões daquele duelo para evitar múltiplos cliques
+      const container = document.getElementById("jogos");
+      const botaoDuelo = container.querySelectorAll("button");
+      // Cada duelo tem 2 botões, estão na ordem dos duelos:
+      // Botões estão sequenciais: [duelo0_jog1, duelo0_jog2, duelo1_jog1, duelo1_jog2, ...]
+      botaoDuelo[dueloIdx * 2].disabled = true;
+      botaoDuelo[dueloIdx * 2 + 1].disabled = true;
+
+      // Verifica se já decidiu 3 duelos para um time (vitória garantida)
+      let cont0 = dueloResultados.filter(x => x === 0).length;
+      let cont1 = dueloResultados.filter(x => x === 1).length;
+
+      if (cont0 >= 3) {
+        // time1 venceu o confronto
+        proximaRodadaTimes.push(times[rodadaIdx]);
+        rodadaIndexTimes += 2;
+        continuarRodadaTimesOuFinal();
+      } else if (cont1 >= 3) {
+        // time2 venceu o confronto
+        proximaRodadaTimes.push(times[rodadaIdx + 1]);
+        rodadaIndexTimes += 2;
+        continuarRodadaTimesOuFinal();
+      } else if (dueloResultados.filter(x => x !== null).length === tamanhoTime) {
+        // Todos os duelos foram decididos mas não há vencedor 3 ainda (empate)
+        // desempate: somar pontos totais do time nos duelos para a categoria escolhida
+        let somaTime0 = 0;
+        let somaTime1 = 0;
+        for (let i = 0; i < tamanhoTime; i++) {
+          const cat = categorias[i];
+          somaTime0 += times[rodadaIdx][i][cat];
+          somaTime1 += times[rodadaIdx + 1][i][cat];
+        }
+        if (somaTime0 >= somaTime1) {
+          proximaRodadaTimes.push(times[rodadaIdx]);
+        } else {
+          proximaRodadaTimes.push(times[rodadaIdx + 1]);
+        }
+        rodadaIndexTimes += 2;
+        continuarRodadaTimesOuFinal();
+      }
+    }
+
+    function continuarRodadaTimesOuFinal() {
+      if (rodadaIndexTimes >= rodadaAtualTimes.length) {
+        // rodada acabou, mostra resumo
+        mostrarResumoRodadaTimes();
+      } else {
+        // próxima disputa
+        dueloResultados = Array(tamanhoTime).fill(null);
+        mostrarPartidaTimes();
+      }
+    }
+
+    function mostrarResumoRodadaTimes() {
+      document.getElementById("jogos").style.display = "none";
+      const resumo = document.getElementById("resumoRodada");
+      resumo.style.display = "block";
+      resumo.innerHTML = `<h2>Times classificados para a próxima rodada:</h2><div id="participantesAtuais"></div><button onclick="continuarRodadaTimes()">Continuar Torneio</button>`;
+      const container = document.getElementById("participantesAtuais");
+      container.innerHTML = "";
+      proximaRodadaTimes.forEach((time, idx) => {
+        const divTime = document.createElement("div");
+        divTime.style.margin = "0 10px";
+        divTime.style.border = "2px solid #3498db";
+        divTime.style.borderRadius = "8px";
+        divTime.style.padding = "10px";
+        divTime.style.width = "180px";
+        divTime.innerHTML = `<h3>Time ${idx + 1}</h3>`;
+        time.forEach(p => {
+          const mini = document.createElement("div");
+          mini.className = "miniCard";
+          mini.style.marginBottom = "5px";
+          mini.innerHTML = `<img src="${p.imagem}"><div>${p.nome}</div>`;
+          divTime.appendChild(mini);
+        });
+        container.appendChild(divTime);
+      });
+    }
+
+    function continuarRodadaTimes() {
+      document.getElementById("resumoRodada").style.display = "none";
+      document.getElementById("jogos").style.display = "block";
+      rodadaAtualTimes = [...proximaRodadaTimes];
+      proximaRodadaTimes = [];
+      rodadaIndexTimes = 0;
+      mostrarPartidaTimes();
+    }
+
+    function exibirCampeaoIndividual(vencedor) {
       document.getElementById("jogos").style.display = "none";
       const final = document.getElementById("resultadoFinal");
       final.style.display = "block";
       final.innerHTML = `
-        <h2>🏆 Campeão: ${vencedor.nome} 🏆</h2>
+        <h2>🏆 Campeão Individual: ${vencedor.nome} 🏆</h2>
         <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width: 300px; border-radius: 20px;">
         <div class="status">F: ${vencedor.F} | S: ${vencedor.S} | P: ${vencedor.P} | I: ${vencedor.I} | C: ${vencedor.C}</div>
         <br><br>
@@ -426,9 +620,28 @@
       `;
     }
 
+    function exibirCampeaoTimes(time) {
+      document.getElementById("jogos").style.display = "none";
+      const final = document.getElementById("resultadoFinal");
+      final.style.display = "block";
+
+      let html = `<h2>🏆 Campeão por Times 🏆</h2>`;
+      html += `<h3>Time Campeão:</h3>`;
+      html += `<div style="display:flex; justify-content:center; gap:15px;">`;
+      time.forEach(p => {
+        html += `<div style="text-align:center;">
+          <img src="${p.imagem}" alt="${p.nome}" style="width: 140px; border-radius: 20px;">
+          <div>${p.nome}</div>
+          <div class="status">F:${p.F} | S:${p.S} | P:${p.P} | I:${p.I} | C:${p.C}</div>
+        </div>`;
+      });
+      html += `</div><br><button onclick="location.reload()">Voltar ao Início</button>`;
+
+      final.innerHTML = html;
+    }
+
     renderPersonagens();
     criarBrackets();
   </script>
-  <div id="perfilPopup"></div>
 </body>
 </html>
