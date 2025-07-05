@@ -16,7 +16,7 @@
       color: #2c3e50;
     }
     #menu, #jogos, #resultadoFinal {
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
       background: white;
       padding: 20px;
@@ -26,18 +26,54 @@
     }
     .personagemCard {
       display: inline-block;
-      width: 200px;
+      width: 180px;
       margin: 10px;
       text-align: center;
       background: #f8f9fa;
       border-radius: 10px;
       padding: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: grab;
     }
     .personagemCard img {
       width: 100%;
       height: auto;
       border-radius: 10px;
+    }
+    .brackets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .slot {
+      width: 180px;
+      height: 250px;
+      background: #ddd;
+      border-radius: 10px;
+      text-align: center;
+      line-height: 250px;
+      font-weight: bold;
+      color: #888;
+      position: relative;
+    }
+    .slot img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: cover;
+    }
+    .slot .nome {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 14px;
     }
     .jogo {
       display: flex;
@@ -79,7 +115,10 @@
 <body>
   <div id="menu">
     <h1>Copa dos Personagens</h1>
+    <p>Arraste os personagens desejados para os espaços do torneio:</p>
     <div id="personagensLista"></div>
+    <h3>Chaves do Torneio (8 Participantes)</h3>
+    <div id="brackets" class="brackets"></div>
     <button onclick="iniciarTorneio()">Iniciar Torneio</button>
   </div>
 
@@ -98,27 +137,59 @@
       { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", F: 3, S: 4, P: 2, I: 5, C: 4 }
     ];
 
+    let brackets = [];
     let rodadaAtual = [];
     let proximaRodada = [];
     let rodadaIndex = 0;
 
     function renderPersonagens() {
-      const container = document.getElementById("personagensLista");
-      container.innerHTML = "";
-      personagens.forEach(p => {
+      const lista = document.getElementById("personagensLista");
+      lista.innerHTML = "";
+      personagens.forEach((p, i) => {
         const card = document.createElement("div");
         card.className = "personagemCard";
+        card.draggable = true;
+        card.dataset.index = i;
         card.innerHTML = `
           <img src="${p.imagem}" alt="${p.nome}">
           <h3>${p.nome}</h3>
           <div class="status">F: ${p.F} | S: ${p.S} | P: ${p.P} | I: ${p.I} | C: ${p.C}</div>
         `;
-        container.appendChild(card);
+        card.addEventListener("dragstart", e => {
+          e.dataTransfer.setData("text/plain", i);
+        });
+        lista.appendChild(card);
       });
     }
 
+    function criarBrackets() {
+      const container = document.getElementById("brackets");
+      container.innerHTML = "";
+      brackets = [];
+      for (let i = 0; i < 8; i++) {
+        const slot = document.createElement("div");
+        slot.className = "slot";
+        slot.textContent = "Solte aqui";
+        slot.ondragover = e => e.preventDefault();
+        slot.ondrop = e => {
+          const idx = e.dataTransfer.getData("text/plain");
+          const p = personagens[idx];
+          if (!brackets.includes(p)) {
+            slot.innerHTML = `<img src="${p.imagem}"><div class="nome">${p.nome}</div>`;
+            brackets[i] = p;
+          }
+        };
+        container.appendChild(slot);
+        brackets.push(null);
+      }
+    }
+
     function iniciarTorneio() {
-      rodadaAtual = [...personagens];
+      if (brackets.filter(Boolean).length < 8) {
+        alert("Complete os 8 espaços com personagens únicos!");
+        return;
+      }
+      rodadaAtual = [...brackets];
       document.getElementById("menu").style.display = "none";
       document.getElementById("jogos").style.display = "block";
       rodadaIndex = 0;
@@ -184,6 +255,7 @@
     }
 
     renderPersonagens();
+    criarBrackets();
   </script>
 </body>
 </html>
