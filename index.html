@@ -194,7 +194,7 @@
       <option value="63">64</option>
       <option value="80">80</option>
     </select>
-    <button onclick="rodarGacha()">Rodar Gacha</button>
+    <button onclick="rodarGachaVisual()">Rodar Gacha</button>
     <button onclick="resetarDesbloqueios()" style="background:#e74c3c;">Resetar Desbloqueios</button>
     <br><br>
     <p>Arraste os personagens desejados para os espaços do torneio:</p>
@@ -280,6 +280,78 @@ function rodarGacha() {
   alert(`🎉 Você desbloqueou: ${sorteado.nome}!`);
   personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
   renderPersonagens();
+}
+    function rodarGachaVisual() {
+  const popup = document.getElementById("gachaPopup");
+  const roleta = document.getElementById("gachaRoll");
+  const botaoFechar = document.getElementById("gachaFechar");
+  popup.style.display = "block";
+  botaoFechar.style.display = "none";
+  roleta.innerHTML = "";
+
+  // Criar roleta longa com personagens repetidos
+  let roletaPersonagens = [];
+  for (let i = 0; i < 30; i++) {
+    roletaPersonagens.push(...personagensOriginais);
+  }
+
+  // Embaralhar
+  for (let i = roletaPersonagens.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [roletaPersonagens[i], roletaPersonagens[j]] = [roletaPersonagens[j], roletaPersonagens[i]];
+  }
+
+  // Renderizar a roleta
+  roletaPersonagens.forEach(p => {
+    const img = document.createElement("img");
+    img.src = p.imagem;
+    img.style.width = "100px";
+    img.style.margin = "0 5px";
+    img.style.borderRadius = "8px";
+    img.style.transition = "transform 0.3s";
+    img.title = p.nome;
+    roleta.appendChild(img);
+  });
+
+  const imagens = roleta.querySelectorAll("img");
+  const larguraItem = 110;
+  const totalScroll = (imagens.length - 10) * larguraItem;
+
+  // Escolher um personagem aleatório final
+  const escolhido = personagensOriginais[Math.floor(Math.random() * personagensOriginais.length)];
+
+  const indexFinal = roletaPersonagens.findIndex(p => p.nome === escolhido.nome);
+
+  // Scroll suave para o personagem escolhido
+  const destinoScroll = indexFinal * larguraItem - 200;
+  let atual = 0;
+  const intervalo = setInterval(() => {
+    atual += 40;
+    roleta.scrollLeft = atual;
+    if (atual >= destinoScroll) {
+      clearInterval(intervalo);
+
+      // Efeito de destaque
+      imagens[indexFinal].style.transform = "scale(1.4)";
+      imagens[indexFinal].style.boxShadow = "0 0 20px gold";
+
+      // Desbloqueia se for novo
+      if (!desbloqueados.includes(escolhido.nome)) {
+        desbloqueados.push(escolhido.nome);
+        salvarDesbloqueados();
+        alert(`🎉 Você desbloqueou ${escolhido.nome}!`);
+      } else {
+        alert(`${escolhido.nome} já estava desbloqueado.`);
+      }
+
+      botaoFechar.style.display = "block";
+      renderPersonagens();
+    }
+  }, 20);
+}
+
+function fecharGacha() {
+  document.getElementById("gachaPopup").style.display = "none";
 }
 
     function abrirPerfil(personagem) {
@@ -678,9 +750,13 @@ function rodarGacha() {
 
       final.innerHTML = html;
     }
-
     renderPersonagens();
     criarBrackets();
   </script>
+  <div id="gachaPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:3px solid #3498db; border-radius:12px; padding:20px; z-index:9999; width:80%; max-width:700px; box-shadow:0 10px 20px rgba(0,0,0,0.3); text-align:center;">
+  <h2>Rodando Gacha...</h2>
+  <div id="gachaRoll" style="display:flex; overflow:hidden; justify-content:center; align-items:center; height:150px; margin-top:20px;"></div>
+  <button onclick="fecharGacha()" style="margin-top:20px; display:none;" id="gachaFechar">Fechar</button>
+</div>
 </body>
 </html>
