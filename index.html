@@ -34,7 +34,7 @@
       padding: 5px;
       font-size: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      cursor: grab;
+      cursor: pointer;
       transition: transform 0.3s ease;
     }
     .personagemCard:hover {
@@ -132,6 +132,50 @@
       width: 100%;
       border-radius: 6px;
     }
+    #perfilPopup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 3px solid #3498db;
+      border-radius: 12px;
+      padding: 20px;
+      z-index: 9999;
+      width: 300px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      display: none;
+    }
+    #perfilPopup h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    .statItem {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 6px;
+      font-weight: bold;
+      color: white;
+      text-align: center;
+    }
+    .stat-Fart { background: #f1c40f; }
+    .stat-Shit { background: #8e5e3a; }
+    .stat-Pee { background: #f7dc6f; color: black; }
+    .stat-Spit { background: #5dade2; }
+    .stat-Cruelty { background: #e74c3c; }
+    #fecharPerfil {
+      display: block;
+      margin: 15px auto 0;
+      background: #3498db;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #fecharPerfil:hover {
+      background: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -194,7 +238,20 @@
         lista.appendChild(card);
       });
     }
-
+    function abrirPerfil(personagem) {
+      const popup = document.getElementById("perfilPopup");
+      popup.innerHTML = `
+        <h2>${personagem.nome}</h2>
+        <div class="statItem stat-Fart">Fart: ${personagem.F}</div>
+        <div class="statItem stat-Shit">Shit: ${personagem.S}</div>
+        <div class="statItem stat-Pee">Pee: ${personagem.P}</div>
+        <div class="statItem stat-Spit">Spit: ${personagem.I}</div>
+        <div class="statItem stat-Cruelty">Cruelty: ${personagem.C}</div>
+        <button id="fecharPerfil">Fechar</button>
+      `;
+      popup.style.display = "block";
+      document.getElementById("fecharPerfil").onclick = () => popup.style.display = "none";
+    }
     function criarBrackets() {
       const qtd = parseInt(tamanhoSelect.value);
       const container = document.getElementById("brackets");
