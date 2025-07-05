@@ -231,24 +231,30 @@
     }
 
     function preencherAutomaticamente() {
-      const slotsVazios = brackets.map((p, i) => p ? null : i).filter(i => i !== null);
-      // Personagens já usados:
-      const usados = new Set(brackets.filter(p => p).map(p => p.nome));
-      // Personagens disponíveis pra usar no menu:
-      const disponiveis = personagens.filter(p => !usados.has(p.nome));
-      // Preencher só o que falta:
-      let dispIndex = 0;
-      slotsVazios.forEach(i => {
-        if (dispIndex < disponiveis.length) {
-          brackets[i] = disponiveis[dispIndex];
-          dispIndex++;
-        }
-      });
-      // Remove os usados do menu:
-      personagens = personagens.filter(p => !brackets.includes(p));
-      atualizarSlots();
-      renderPersonagens();
-    }
+  // Identifica os índices dos slots vazios
+  const slotsVazios = brackets.map((p, i) => p ? null : i).filter(i => i !== null);
+
+  // Filtra os personagens ainda disponíveis
+  const usados = new Set(brackets.filter(p => p).map(p => p.nome));
+  const disponiveis = personagens.filter(p => !usados.has(p.nome));
+
+  // Embaralha os personagens disponíveis e os slots vazios
+  const embaralhar = arr => arr.sort(() => Math.random() - 0.5);
+  const personagensSorteados = embaralhar([...disponiveis]);
+  const slotsSorteados = embaralhar([...slotsVazios]);
+
+  // Preenche os slots com personagens sorteados
+  for (let i = 0; i < slotsSorteados.length && i < personagensSorteados.length; i++) {
+    const idxSlot = slotsSorteados[i];
+    brackets[idxSlot] = personagensSorteados[i];
+  }
+
+  // Atualiza os personagens disponíveis no menu (remove os que foram usados)
+  personagens = personagens.filter(p => !brackets.includes(p));
+
+  atualizarSlots();
+  renderPersonagens();
+}
 
     function iniciarTorneio() {
       const preenchidos = brackets.filter(Boolean);
