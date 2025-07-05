@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Copa dos Personagens</title>
   <style>
     body {
@@ -35,6 +35,12 @@
       font-size: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       cursor: grab;
+      transition: transform 0.3s ease;
+    }
+    .personagemCard:hover {
+      transform: scale(1.2);
+      z-index: 10;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
     .personagemCard img {
       width: 100%;
@@ -167,7 +173,9 @@
     let proximaRodada = [];
     let rodadaIndex = 0;
 
-    document.getElementById("tamanho").addEventListener("change", () => criarBrackets());
+    const tamanhoSelect = document.getElementById("tamanho");
+
+    tamanhoSelect.addEventListener("change", () => criarBrackets());
 
     function renderPersonagens() {
       const lista = document.getElementById("personagensLista");
@@ -184,7 +192,7 @@
     }
 
     function criarBrackets() {
-      const qtd = parseInt(document.getElementById("tamanho").value);
+      const qtd = parseInt(tamanhoSelect.value);
       const container = document.getElementById("brackets");
       container.innerHTML = "";
       brackets = Array(qtd).fill(null);
@@ -197,30 +205,47 @@
           const idx = e.dataTransfer.getData("text/plain");
           const p = personagens[idx];
           if (p && !brackets.includes(p)) {
-            slot.innerHTML = `<img src="${p.imagem}"><div class="nome">${p.nome}</div>`;
             brackets[i] = p;
+            atualizarSlots();
+            // Remove personagem do menu:
             personagens.splice(idx, 1);
             renderPersonagens();
           }
         };
         container.appendChild(slot);
       }
+      atualizarSlots();
+    }
+
+    function atualizarSlots() {
+      const slots = document.getElementsByClassName("slot");
+      for (let i = 0; i < brackets.length; i++) {
+        const slot = slots[i];
+        if (brackets[i]) {
+          slot.innerHTML = `<img src="${brackets[i].imagem}"><div class="nome">${brackets[i].nome}</div>`;
+        } else {
+          slot.textContent = "Solte aqui";
+        }
+      }
     }
 
     function preencherAutomaticamente() {
-      for (let i = 0; i < brackets.length && personagens.length > 0; i++) {
-        if (!brackets[i]) {
-          const p = personagens.shift();
-          brackets[i] = p;
+      const slotsVazios = brackets.map((p, i) => p ? null : i).filter(i => i !== null);
+      // Personagens já usados:
+      const usados = new Set(brackets.filter(p => p).map(p => p.nome));
+      // Personagens disponíveis pra usar no menu:
+      const disponiveis = personagens.filter(p => !usados.has(p.nome));
+      // Preencher só o que falta:
+      let dispIndex = 0;
+      slotsVazios.forEach(i => {
+        if (dispIndex < disponiveis.length) {
+          brackets[i] = disponiveis[dispIndex];
+          dispIndex++;
         }
-      }
-      criarBrackets();
-      for (let i = 0; i < brackets.length; i++) {
-        const slot = document.getElementsByClassName("slot")[i];
-        if (brackets[i]) {
-          slot.innerHTML = `<img src="${brackets[i].imagem}"><div class="nome">${brackets[i].nome}</div>`;
-        }
-      }
+      });
+      // Remove os usados do menu:
+      personagens = personagens.filter(p => !brackets.includes(p));
+      atualizarSlots();
       renderPersonagens();
     }
 
