@@ -194,6 +194,7 @@
       <option value="63">64</option>
       <option value="80">80</option>
     </select>
+    <button onclick="rodarGacha()">Rodar Gacha</button>
     <br><br>
     <p>Arraste os personagens desejados para os espaços do torneio:</p>
     <div id="personagensLista"></div>
@@ -223,7 +224,7 @@
       { nome: "Junko Enoshima", imagem: "https://i.imgur.com/vDB0UhD.png", F: 3, S: 4, P: 2, I: 5, C: 4 }
       
     ];
-    let personagens = [...personagensOriginais];
+    let personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
     let brackets = [];
     let rodadaAtual = [];
     let proximaRodada = [];
@@ -250,6 +251,30 @@
     lista.appendChild(card);
   });
 }
+    // Lista de personagens desbloqueados
+let desbloqueados = JSON.parse(localStorage.getItem("desbloqueados")) || [];
+
+// Salva a lista no localStorage
+function salvarDesbloqueados() {
+  localStorage.setItem("desbloqueados", JSON.stringify(desbloqueados));
+}
+
+// Função para rodar o gacha
+function rodarGacha() {
+  const disponiveis = personagensOriginais.filter(p => !desbloqueados.includes(p.nome));
+  if (disponiveis.length === 0) {
+    alert("Você já desbloqueou todos os personagens!");
+    return;
+  }
+
+  const sorteado = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+  desbloqueados.push(sorteado.nome);
+  salvarDesbloqueados();
+  alert(`🎉 Você desbloqueou: ${sorteado.nome}!`);
+  personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
+  renderPersonagens();
+}
+
     function abrirPerfil(personagem) {
       const popup = document.getElementById("perfilPopup");
       popup.innerHTML = `
