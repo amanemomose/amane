@@ -239,7 +239,13 @@
   const disponiveis = personagens.filter(p => !usados.has(p.nome));
 
   // Embaralha os personagens disponíveis e os slots vazios
-  const embaralhar = arr => arr.sort(() => Math.random() - 0.5);
+  function embaralhar(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
   const personagensSorteados = embaralhar([...disponiveis]);
   const slotsSorteados = embaralhar([...slotsVazios]);
 
