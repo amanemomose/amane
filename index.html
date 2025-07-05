@@ -374,6 +374,21 @@
   `;
   container.appendChild(jogo);
 }
+    function selecionarVencedor(index, escolha) {
+  const p1 = rodadaAtual[index];
+  const p2 = rodadaAtual[index + 1];
+
+  const vencedor = escolha === 0 ? p1 : p2;
+  proximaRodada.push(vencedor);
+
+  rodadaIndex += 2;
+
+  if (rodadaIndex >= rodadaAtual.length) {
+    mostrarResumoRodada();
+  } else {
+    mostrarPartida();
+  }
+}
     
     function mostrarResumoRodada() {
       document.getElementById("jogos").style.display = "none";
