@@ -2,136 +2,169 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<title>Copa dos Personagens - Modo Equipe Corrigido</title>
+<title>Copa dos Personagens - Decida os Resultados</title>
 <style>
   body {
-    font-family: sans-serif;
-    text-align: center;
-    background: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e2f0f9;
     margin: 0;
     padding: 20px;
+    color: #222;
+  }
+  h1, h2 {
+    color: #1a73e8;
+  }
+  #menu {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  #personagensLista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    justify-content: center;
   }
   .personagemCard {
-    display: inline-block;
-    margin: 10px;
-    cursor: grab;
-    border: 2px solid #444;
-    border-radius: 10px;
     background: white;
-    width: 130px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(26, 115, 232, 0.15);
+    width: 140px;
     padding: 10px;
+    cursor: grab;
     user-select: none;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .personagemCard:hover {
+    transform: scale(1.05);
   }
   .personagemCard img {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    object-fit: cover;
   }
   .status {
-    text-align: left;
-    font-size: 14px;
-    margin-top: 8px;
-    line-height: 1.3;
+    font-size: 13px;
+    margin-top: 6px;
+    color: #444;
   }
   #brackets {
     display: flex;
-    justify-content: center;
-    margin: 20px 0;
-    gap: 40px;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 25px;
   }
   .bracketMatch {
-    border: 2px dashed #999;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(26, 115, 232, 0.2);
+    width: 170px;
+    min-height: 350px;
     padding: 10px;
-    width: 160px;
-    min-height: 360px;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
     justify-content: center;
-    background-color: white;
-    border-radius: 10px;
+    gap: 8px;
   }
   .bracketMatch img {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
-    margin: 3px;
-  }
-  .jogo {
-    margin: 30px auto;
-    padding: 20px;
-    background: white;
+    width: 60px;
+    height: 60px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    width: 800px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
   }
-  .versus {
-    font-weight: bold;
-    font-size: 48px;
-    margin: 0 20px;
-    user-select: none;
-  }
-  .personagem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 220px;
-    user-select: none;
-  }
-  .personagem img {
-    width: 200px;
-    height: 200px;
-    border-radius: 20px;
-  }
-  .statusLuta {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 18px;
-  }
-  .statusValores {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 10px;
-    font-family: monospace;
-    font-size: 16px;
-  }
-  .placar {
-    font-size: 22px;
-    font-weight: bold;
-    margin-top: 20px;
+  .bracketMatch img.selected {
+    border-color: #1a73e8;
   }
   button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 6px;
+    background-color: #1a73e8;
     border: none;
-    background-color: #007bff;
     color: white;
-    transition: background-color 0.3s ease;
+    padding: 12px 28px;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
     user-select: none;
-    margin-top: 10px;
+    transition: background-color 0.3s;
   }
   button:hover {
-    background-color: #0056b3;
+    background-color: #0c47a1;
   }
-  #modoSelect {
-    margin-bottom: 20px;
-    font-size: 18px;
-    padding: 6px;
+  #jogos, #resultadoFinal {
+    max-width: 900px;
+    margin: 40px auto 0 auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(26, 115, 232, 0.25);
+  }
+  .jogoEquipe {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .timeEquipe {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 45%;
+  }
+  .personagemEquipe {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #f1f7ff;
+    border-radius: 12px;
+    padding: 10px 15px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s, box-shadow 0.2s;
+  }
+  .personagemEquipe:hover {
+    background-color: #d0e2ff;
+    box-shadow: 0 0 10px #1a73e8aa;
+  }
+  .personagemEquipe.selected {
+    background-color: #1a73e8;
+    color: white;
+    box-shadow: 0 0 15px #1a73e8cc;
+  }
+  .personagemEquipe img {
+    width: 90px;
+    height: 90px;
+    border-radius: 15px;
+    object-fit: cover;
+  }
+  .categoriaLabel {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #0c47a1;
+  }
+  .placar {
+    font-size: 20px;
+    margin-top: 15px;
+    font-weight: 700;
+    color: #444;
   }
   #avisoEquipe {
-    color: #c00;
-    font-weight: bold;
-    margin-bottom: 10px;
+    color: #cc0000;
+    font-weight: 700;
+    margin-bottom: 15px;
   }
 </style>
 </head>
 <body>
 <div id="menu">
-  <h1>Copa dos Personagens - Com Status e Modo Equipe</h1>
-
+  <h1>Copa dos Personagens - Decida os Resultados</h1>
   <label for="modoSelect">Modo:</label>
   <select id="modoSelect">
     <option value="individual" selected>Individual</option>
@@ -150,7 +183,7 @@
   <div id="avisoEquipe" style="display:none;">No modo equipe, cada time deve ter 5 personagens (arraste 5 para cada caixa)</div>
   <div id="personagensLista"></div>
   <div id="brackets"></div>
-  <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
+  <button id="btnIniciar">Iniciar Torneio</button>
 </div>
 
 <div id="jogos" style="display:none;"></div>
@@ -159,7 +192,6 @@
 <script>
   const categorias = ["F", "S", "P", "I", "C"];
 
-  // Personagens com status (valores 1 a 10)
   const personagens = [
     { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png", stats: {F:7, S:6, P:8, I:5, C:7} },
     { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png", stats: {F:5, S:9, P:6, I:8, C:7} },
@@ -178,20 +210,21 @@
   const resultadoFinal = document.getElementById("resultadoFinal");
   const modoSelect = document.getElementById("modoSelect");
   const avisoEquipe = document.getElementById("avisoEquipe");
+  const btnIniciar = document.getElementById("btnIniciar");
 
   let rodadaAtual = [];
   let proximaRodada = [];
   let rodadaIndex = 0;
+  let modoEquipe = false;
 
-  // Somente usado no modo equipe
+  // Para modo equipe
   let subDueloIndex = 0;
   let placarEquipe1 = 0;
   let placarEquipe2 = 0;
-  let modoEquipe = false;
 
   function renderPersonagens() {
     personagensLista.innerHTML = "";
-    personagens.forEach((p, i) => {
+    personagens.forEach((p,i) => {
       const div = document.createElement("div");
       div.className = "personagemCard";
       div.innerHTML = `
@@ -203,9 +236,7 @@
       `;
       div.draggable = true;
       div.dataset.index = i;
-      div.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", i);
-      });
+      div.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", i));
       personagensLista.appendChild(div);
     });
   }
@@ -216,19 +247,15 @@
     avisoEquipe.style.display = modoEquipe ? "block" : "none";
 
     if (modoEquipe) {
-      // Cada caixa representa um time, deve ter 5 personagens
-      for (let i = 0; i < tamanho / 2; i++) {
+      for(let i=0; i<tamanho/2; i++) {
         const div = document.createElement("div");
         div.className = "bracketMatch";
         div.ondragover = e => e.preventDefault();
         div.ondrop = e => {
           const idx = e.dataTransfer.getData("text/plain");
           const personagem = personagens[idx];
-          if (div.children.length < 5) {
-            // Evitar personagens duplicados no mesmo time
-            for (let child of div.children) {
-              if (child.dataset.idx === idx) return;
-            }
+          if(div.children.length < 5) {
+            for(let child of div.children) if(child.dataset.idx === idx) return;
             const img = document.createElement("img");
             img.src = personagem.imagem;
             img.alt = personagem.nome;
@@ -240,15 +267,16 @@
         brackets.appendChild(div);
       }
     } else {
-      // Modo individual: 2 personagens por caixa
-      for (let i = 0; i < tamanho / 2; i++) {
+      for(let i=0; i<tamanho/2; i++) {
         const div = document.createElement("div");
         div.className = "bracketMatch";
         div.ondragover = e => e.preventDefault();
         div.ondrop = e => {
           const idx = e.dataTransfer.getData("text/plain");
           const personagem = personagens[idx];
-          if (div.children.length < 2) {
+          if(div.children.length < 2) {
+            const imgs = Array.from(div.children);
+            if(imgs.some(im => im.dataset.idx === idx)) return;
             const img = document.createElement("img");
             img.src = personagem.imagem;
             img.alt = personagem.nome;
@@ -263,7 +291,7 @@
   }
 
   function validarEIniciarTorneio() {
-    const partidas = [...brackets.children];
+    const partidas = Array.from(brackets.children);
     rodadaAtual = [];
     proximaRodada = [];
     rodadaIndex = 0;
@@ -272,232 +300,33 @@
     placarEquipe2 = 0;
     modoEquipe = modoSelect.value === "equipe";
 
-    if (modoEquipe) {
-      // Validar times: cada time deve ter 5 personagens
-      for (const partida of partidas) {
-        if (partida.children.length !== 5) {
-          alert("Cada time deve ter 5 personagens no modo equipe!");
+    if(modoEquipe){
+      for(const partida of partidas){
+        if(partida.children.length !== 5){
+          alert("Cada time deve ter 5 personagens!");
           return;
         }
         const time = [];
-        for (const img of partida.children) {
+        for(const img of partida.children){
           time.push(personagens[Number(img.dataset.idx)]);
         }
         rodadaAtual.push(time);
       }
     } else {
-      // Validar personagens individuais
-      for (const partida of partidas) {
-        if (partida.children.length !== 2) {
+      for(const partida of partidas){
+        if(partida.children.length !== 2){
           alert("Cada partida deve ter 2 personagens!");
           return;
         }
-        const imgs = [...partida.children];
+        const imgs = Array.from(partida.children);
         rodadaAtual.push(personagens[Number(imgs[0].dataset.idx)]);
         rodadaAtual.push(personagens[Number(imgs[1].dataset.idx)]);
       }
     }
-
     document.getElementById("menu").style.display = "none";
     jogosDiv.style.display = "block";
     resultadoFinal.style.display = "none";
-
     mostrarProximaPartida();
   }
 
-  function mostrarProximaPartida() {
-    jogosDiv.innerHTML = "";
-
-    if (modoEquipe) {
-      if (rodadaIndex >= rodadaAtual.length) {
-        // Próxima rodada ou fim
-        if (proximaRodada.length === 1) {
-          exibirCampeao(proximaRodada[0]);
-          return;
-        }
-        rodadaAtual = [...proximaRodada];
-        proximaRodada = [];
-        rodadaIndex = 0;
-        mostrarProximaPartida();
-        return;
-      }
-
-      // Começa os 5 duelos da partida de equipes
-      placarEquipe1 = 0;
-      placarEquipe2 = 0;
-      subDueloIndex = 0;
-
-      mostrarSubDueloEquipe();
-    } else {
-      // Modo individual
-      if (rodadaIndex >= rodadaAtual.length) {
-        if (proximaRodada.length === 1) {
-          exibirCampeao(proximaRodada[0]);
-          return;
-        }
-        rodadaAtual = [...proximaRodada];
-        proximaRodada = [];
-        rodadaIndex = 0;
-        mostrarProximaPartida();
-        return;
-      }
-
-      const p1 = rodadaAtual[rodadaIndex];
-      const p2 = rodadaAtual[rodadaIndex + 1];
-
-      const jogo = document.createElement("div");
-      jogo.className = "jogo";
-      jogo.innerHTML = `
-        <div style="display:flex; justify-content:center; align-items:center; gap:50px;">
-          <div class="personagem">
-            <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
-            <div class="statusValores">F:${p1.stats.F} S:${p1.stats.S} P:${p1.stats.P} I:${p1.stats.I} C:${p1.stats.C}</div>
-          </div>
-          <div class="versus">VS</div>
-          <div class="personagem">
-            <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
-            <div class="statusValores">F:${p2.stats.F} S:${p2.stats.S} P:${p2.stats.P} I:${p2.stats.I} C:${p2.stats.C}</div>
-          </div>
-        </div>
-        <br>
-        <button onclick="mostrarResultadoPartidaIndividual()">Ver Resultado</button>
-      `;
-      jogosDiv.appendChild(jogo);
-    }
-  }
-
-  // Mostra o duelo da sub-partida da equipe (uma categoria de 5)
-  function mostrarSubDueloEquipe() {
-    jogosDiv.innerHTML = "";
-
-    if (subDueloIndex >= categorias.length) {
-      // fim da partida - decide vencedor da equipe
-      let vencedorEquipe;
-      if (placarEquipe1 > placarEquipe2) vencedorEquipe = rodadaAtual[rodadaIndex];
-      else if (placarEquipe2 > placarEquipe1) vencedorEquipe = rodadaAtual[rodadaIndex + 1];
-      else {
-        // empate geral, desempate random
-        vencedorEquipe = Math.random() < 0.5 ? rodadaAtual[rodadaIndex] : rodadaAtual[rodadaIndex + 1];
-      }
-      proximaRodada.push(vencedorEquipe);
-
-      jogosDiv.innerHTML = `
-        <h2>Resultado da Partida de Equipes</h2>
-        <p>Equipe 1 venceu ${placarEquipe1} duelos</p>
-        <p>Equipe 2 venceu ${placarEquipe2} duelos</p>
-        <h3>Vencedor: Time com ${vencedorEquipe[0].nome} (primeiro personagem)</h3>
-        <button onclick="continuarEquipe()">Próxima Partida</button>
-      `;
-      return;
-    }
-
-    // duelo atual:
-    const cat = categorias[subDueloIndex];
-    const time1 = rodadaAtual[rodadaIndex];
-    const time2 = rodadaAtual[rodadaIndex + 1];
-    const p1 = time1[subDueloIndex];
-    const p2 = time2[subDueloIndex];
-
-    jogosDiv.innerHTML = `
-      <div class="jogo" style="width: 800px;">
-        <div style="display:flex; justify-content:center; align-items:center; gap:40px;">
-          <div class="personagem">
-            <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
-            <div class="statusLuta">Categoria: ${cat}</div>
-            <div class="statusValores">${cat}: ${p1.stats[cat]}</div>
-          </div>
-          <div class="versus">VS</div>
-          <div class="personagem">
-            <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
-            <div class="statusLuta">Categoria: ${cat}</div>
-            <div class="statusValores">${cat}: ${p2.stats[cat]}</div>
-          </div>
-        </div>
-        <br>
-        <div class="placar">
-          Placar: Equipe 1 - ${placarEquipe1} | Equipe 2 - ${placarEquipe2}
-        </div>
-        <button onclick="mostrarResultadoSubDueloEquipe()">Ver Resultado</button>
-      </div>
-    `;
-  }
-
-  function mostrarResultadoSubDueloEquipe() {
-    const cat = categorias[subDueloIndex];
-    const time1 = rodadaAtual[rodadaIndex];
-    const time2 = rodadaAtual[rodadaIndex + 1];
-    const p1 = time1[subDueloIndex];
-    const p2 = time2[subDueloIndex];
-
-    let vencedorDuelista;
-    if (p1.stats[cat] > p2.stats[cat]) vencedorDuelista = 1;
-    else if (p2.stats[cat] > p1.stats[cat]) vencedorDuelista = 2;
-    else vencedorDuelista = Math.random() < 0.5 ? 1 : 2;
-
-    if (vencedorDuelista === 1) placarEquipe1++;
-    else placarEquipe2++;
-
-    // Mostra resultado parcial, e aguarda próximo duelo ou fim
-    jogosDiv.innerHTML += `<p><strong>Duelo de ${cat} vencido por: Equipe ${vencedorDuelista}</strong></p>`;
-
-    subDueloIndex++;
-  }
-
-  function continuarEquipe() {
-    rodadaIndex += 2;
-    mostrarProximaPartida();
-  }
-
-  function mostrarResultadoPartidaIndividual() {
-    const p1 = rodadaAtual[rodadaIndex];
-    const p2 = rodadaAtual[rodadaIndex + 1];
-    const cat = categorias[Math.floor(Math.random() * categorias.length)];
-
-    let vencedor;
-    if (p1.stats[cat] > p2.stats[cat]) vencedor = p1;
-    else if (p2.stats[cat] > p1.stats[cat]) vencedor = p2;
-    else vencedor = Math.random() < 0.5 ? p1 : p2;
-
-    proximaRodada.push(vencedor);
-
-    jogosDiv.innerHTML += `<h2>Categoria da luta: ${cat}</h2>`;
-    jogosDiv.innerHTML += `
-      <h2>Vencedor: ${vencedor.nome}</h2>
-      <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width:150px; height:150px; border-radius:20px;">
-      <br><br>
-      <button onclick="proximaPartidaIndividual()">Próxima Partida</button>
-    `;
-  }
-
-  function proximaPartidaIndividual() {
-    rodadaIndex += 2;
-    mostrarProximaPartida();
-  }
-
-  function exibirCampeao(vencedor) {
-    jogosDiv.style.display = "none";
-    resultadoFinal.style.display = "block";
-    let nomeCampeao = modoEquipe ? vencedor[0].nome + " e equipe" : vencedor.nome;
-
-    resultadoFinal.innerHTML = `
-      <h2>🏆 Campeão: ${nomeCampeao} 🏆</h2>
-      <img src="${modoEquipe ? vencedor[0].imagem : vencedor.imagem}" alt="Campeão" style="width: 200px; height: 200px; border-radius: 20px;">
-      <br><br>
-      <button onclick="location.reload()">Voltar ao Início</button>
-    `;
-  }
-
-  modoSelect.addEventListener("change", () => {
-    criarBrackets(Number(tamanhoSelect.value));
-  });
-
-  tamanhoSelect.addEventListener("change", () => {
-    criarBrackets(Number(tamanhoSelect.value));
-  });
-
-  // Inicializa
-  renderPersonagens();
-  criarBrackets(Number(tamanhoSelect.value));
-</script>
-</body>
-</html>
+  function mostrarProxima
