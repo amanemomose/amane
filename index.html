@@ -152,17 +152,19 @@
       const container = document.getElementById("personagensLista");
       container.innerHTML = "";
       personagens.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "personagemCard";
+        div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
         if (!usados.has(i)) {
-          const div = document.createElement("div");
-          div.className = "personagemCard";
-          div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
           div.draggable = true;
           div.dataset.index = i;
           div.addEventListener("dragstart", e => {
             e.dataTransfer.setData("text/plain", i);
           });
-          container.appendChild(div);
+        } else {
+          div.style.opacity = 0.4;
         }
+        container.appendChild(div);
       });
     }
 
