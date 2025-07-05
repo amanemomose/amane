@@ -330,33 +330,6 @@ function rodarGacha() {
   roleta.innerHTML = "";
   roleta.scrollLeft = 0;
 
-  // Criar array grande com personagens repetidos para simular roleta
-  let roletaPersonagens = [];
-  for (let i = 0; i < 30; i++) {
-    roletaPersonagens.push(...personagensOriginais);
-  }
-
-  // Embaralhar roleta
-  for (let i = roletaPersonagens.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [roletaPersonagens[i], roletaPersonagens[j]] = [roletaPersonagens[j], roletaPersonagens[i]];
-  }
-
-  roletaPersonagens.forEach(p => {
-    const img = document.createElement("img");
-    img.src = p.imagem;
-    img.style.width = "100px";
-    img.style.margin = "0 5px";
-    img.style.borderRadius = "8px";
-    img.style.transition = "transform 0.3s";
-    img.title = p.nome;
-    roleta.appendChild(img);
-  });
-
-  const imagens = roleta.querySelectorAll("img");
-  const larguraItem = 110;
-  const containerWidth = roleta.clientWidth;
-
   const disponiveis = personagensOriginais.filter(p => !desbloqueados.includes(p.nome));
   if (disponiveis.length === 0) {
     alert("Você já desbloqueou todos os personagens!");
@@ -364,46 +337,76 @@ function rodarGacha() {
     return;
   }
 
+  // Gera o personagem sorteado
   const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
-  const imagensArray = Array.from(roleta.querySelectorAll("img"));
-  const indexFinal = imagensArray.findIndex(img => img.title === escolhido.nome);
 
-  let destinoScroll = indexFinal * larguraItem - containerWidth / 2 + larguraItem / 2;
-  destinoScroll = Math.max(0, Math.min(destinoScroll, roleta.scrollWidth - containerWidth));
+  // Cria a roleta com personagens repetidos para dar rotação
+  let roletaPersonagens = [];
+  for (let i = 0; i < 20; i++) {
+    roletaPersonagens.push(...personagensOriginais);
+  }
 
+  // Embaralha
+  for (let i = roletaPersonagens.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [roletaPersonagens[i], roletaPersonagens[j]] = [roletaPersonagens[j], roletaPersonagens[i]];
+  }
+
+  // Garante que o escolhido está perto do fim para parar nele
+  roletaPersonagens.splice(220, 0, escolhido); // insere perto do fim
+
+  roletaPersonagens.forEach(p => {
+    const img = document.createElement("img");
+    img.src = p.imagem;
+    img.title = p.nome;
+    img.style.width = "100px";
+    img.style.margin = "0 5px";
+    img.style.borderRadius = "8px";
+    roleta.appendChild(img);
+  });
+
+  // Efeito de rolagem animada
+  const larguraItem = 110;
+  const destinoFinal = 220 * larguraItem;
+  let scrollAtual = 0;
   let velocidade = 40;
-  let animFrameId;
 
   function animarScroll() {
-    const diff = destinoScroll - roleta.scrollLeft;
-    const passo = Math.min(Math.abs(diff), velocidade);
+    scrollAtual += velocidade;
+    roleta.scrollLeft = scrollAtual;
 
-    roleta.scrollLeft += diff > 0 ? passo : -passo;
-    velocidade *= 0.92;
+    if (scrollAtual >= destinoFinal - 200) {
+      // Começa a desacelerar
+      velocidade *= 0.92;
+    }
 
-    if (Math.abs(diff) < 1 && velocidade < 0.5) {
-      cancelAnimationFrame(animFrameId);
+    if (scrollAtual >= destinoFinal || velocidade < 0.5) {
+      roleta.scrollLeft = destinoFinal;
+
+      // Destaca o personagem sorteado
+      const imagens = roleta.querySelectorAll("img");
       imagens.forEach(img => {
         img.style.transform = "scale(1)";
         img.style.boxShadow = "none";
       });
-      imagens[indexFinal].style.transform = "scale(1.4)";
-      imagens[indexFinal].style.boxShadow = "0 0 20px gold";
 
+      imagens[220].style.transform = "scale(1.4)";
+      imagens[220].style.boxShadow = "0 0 20px gold";
+
+      // Desbloqueia
       desbloqueados.push(escolhido.nome);
       salvarDesbloqueados();
 
       alert(`🎉 Você desbloqueou: ${escolhido.nome}!`);
-
       renderPersonagens();
       botaoFechar.style.display = "block";
       return;
     }
 
-    animFrameId = requestAnimationFrame(animarScroll);
+    requestAnimationFrame(animarScroll);
   }
 
-  animFrameId = requestAnimationFrame(animarScroll);
+  animarScroll();
 }
 
 function fecharGacha() {
