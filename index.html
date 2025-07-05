@@ -15,7 +15,7 @@
       text-align: center;
       color: #2c3e50;
     }
-    #menu, #jogos, #resultadoFinal {
+    #menu, #jogos, #resultadoFinal, #resumoRodada {
       max-width: 1000px;
       margin: auto;
       background: white;
@@ -111,6 +111,21 @@
     button:hover {
       background-color: #2980b9;
     }
+    #participantesAtuais {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .miniCard {
+      width: 80px;
+      font-size: 10px;
+      text-align: center;
+    }
+    .miniCard img {
+      width: 100%;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -132,6 +147,7 @@
   </div>
 
   <div id="jogos" style="display:none;"></div>
+  <div id="resumoRodada" style="display:none;"></div>
   <div id="resultadoFinal" style="display:none;"></div>
 
   <script>
@@ -151,8 +167,7 @@
     let proximaRodada = [];
     let rodadaIndex = 0;
 
-    const tamanhoSelect = document.getElementById("tamanho");
-    tamanhoSelect.addEventListener("change", () => criarBrackets());
+    document.getElementById("tamanho").addEventListener("change", () => criarBrackets());
 
     function renderPersonagens() {
       const lista = document.getElementById("personagensLista");
@@ -162,22 +177,17 @@
         card.className = "personagemCard";
         card.draggable = true;
         card.dataset.index = i;
-        card.innerHTML = `
-          <img src="${p.imagem}" alt="${p.nome}">
-          <div>${p.nome}</div>
-        `;
-        card.addEventListener("dragstart", e => {
-          e.dataTransfer.setData("text/plain", i);
-        });
+        card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
+        card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", i));
         lista.appendChild(card);
       });
     }
 
     function criarBrackets() {
-      const qtd = parseInt(tamanhoSelect.value);
+      const qtd = parseInt(document.getElementById("tamanho").value);
       const container = document.getElementById("brackets");
       container.innerHTML = "";
-      brackets = [];
+      brackets = Array(qtd).fill(null);
       for (let i = 0; i < qtd; i++) {
         const slot = document.createElement("div");
         slot.className = "slot";
@@ -194,25 +204,33 @@
           }
         };
         container.appendChild(slot);
-        brackets.push(null);
       }
     }
 
     function preencherAutomaticamente() {
-      for (let i = 0; i < brackets.length; i++) {
-        if (!brackets[i] && personagens.length > 0) {
-          brackets[i] = personagens.shift();
+      for (let i = 0; i < brackets.length && personagens.length > 0; i++) {
+        if (!brackets[i]) {
+          const p = personagens.shift();
+          brackets[i] = p;
         }
       }
       criarBrackets();
+      for (let i = 0; i < brackets.length; i++) {
+        const slot = document.getElementsByClassName("slot")[i];
+        if (brackets[i]) {
+          slot.innerHTML = `<img src="${brackets[i].imagem}"><div class="nome">${brackets[i].nome}</div>`;
+        }
+      }
+      renderPersonagens();
     }
 
     function iniciarTorneio() {
-      if (brackets.filter(Boolean).length < 2 || brackets.filter(Boolean).length % 2 !== 0) {
-        alert("O número de participantes deve ser par e maior que 1.");
+      const preenchidos = brackets.filter(Boolean);
+      if (preenchidos.length < 2 || preenchidos.length % 2 !== 0) {
+        alert("Número inválido de participantes (mínimo 2, número par).");
         return;
       }
-      rodadaAtual = [...brackets.filter(Boolean)];
+      rodadaAtual = [...preenchidos];
       document.getElementById("menu").style.display = "none";
       document.getElementById("jogos").style.display = "block";
       rodadaIndex = 0;
@@ -223,10 +241,7 @@
     function mostrarPartida() {
       const container = document.getElementById("jogos");
       container.innerHTML = "";
-      if (rodadaAtual.length === 1) {
-        exibirCampeao(rodadaAtual[0]);
-        return;
-      }
+      if (rodadaAtual.length === 1) return exibirCampeao(rodadaAtual[0]);
       const p1 = rodadaAtual[rodadaIndex];
       const p2 = rodadaAtual[rodadaIndex + 1];
       const jogo = document.createElement("div");
@@ -235,14 +250,14 @@
         <div class="card">
           <img src="${p1.imagem}" alt="${p1.nome}">
           <h3>${p1.nome}</h3>
-          <div class="status">F: ${p1.F} | S: ${p1.S} | P: ${p1.P} | I: ${p1.I} | C: ${p1.C}</div>
+          <div class="status">F:${p1.F} S:${p1.S} P:${p1.P} I:${p1.I} C:${p1.C}</div>
           <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
         </div>
         <div class="versus">VS</div>
         <div class="card">
           <img src="${p2.imagem}" alt="${p2.nome}">
           <h3>${p2.nome}</h3>
-          <div class="status">F: ${p2.F} | S: ${p2.S} | P: ${p2.P} | I: ${p2.I} | C: ${p2.C}</div>
+          <div class="status">F:${p2.F} S:${p2.S} P:${p2.P} I:${p2.I} C:${p2.C}</div>
           <button onclick="selecionarVencedor(${rodadaIndex}, 1)">Escolher</button>
         </div>
       `;
@@ -254,10 +269,32 @@
       proximaRodada.push(vencedor);
       rodadaIndex += 2;
       if (rodadaIndex >= rodadaAtual.length) {
-        rodadaAtual = [...proximaRodada];
-        proximaRodada = [];
-        rodadaIndex = 0;
+        mostrarResumoRodada();
+      } else {
+        mostrarPartida();
       }
+    }
+
+    function mostrarResumoRodada() {
+      document.getElementById("jogos").style.display = "none";
+      const resumo = document.getElementById("resumoRodada");
+      resumo.style.display = "block";
+      resumo.innerHTML = `<h2>Classificados para a próxima rodada:</h2><div id="participantesAtuais"></div><button onclick="continuarRodada()">Continuar Torneio</button>`;
+      const container = document.getElementById("participantesAtuais");
+      proximaRodada.forEach(p => {
+        const mini = document.createElement("div");
+        mini.className = "miniCard";
+        mini.innerHTML = `<img src="${p.imagem}"><div>${p.nome}</div>`;
+        container.appendChild(mini);
+      });
+    }
+
+    function continuarRodada() {
+      document.getElementById("resumoRodada").style.display = "none";
+      document.getElementById("jogos").style.display = "block";
+      rodadaAtual = [...proximaRodada];
+      proximaRodada = [];
+      rodadaIndex = 0;
       mostrarPartida();
     }
 
