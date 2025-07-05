@@ -285,23 +285,25 @@ function rodarGacha() {
   const popup = document.getElementById("gachaPopup");
   const roleta = document.getElementById("gachaRoll");
   const botaoFechar = document.getElementById("gachaFechar");
+
   popup.style.display = "block";
   botaoFechar.style.display = "none";
   roleta.innerHTML = "";
+  roleta.scrollLeft = 0;
 
-  // Criar roleta longa com personagens repetidos
+  // Criar array grande com personagens repetidos para simular roleta
   let roletaPersonagens = [];
   for (let i = 0; i < 30; i++) {
     roletaPersonagens.push(...personagensOriginais);
   }
 
-  // Embaralhar
+  // Embaralhar roleta
   for (let i = roletaPersonagens.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [roletaPersonagens[i], roletaPersonagens[j]] = [roletaPersonagens[j], roletaPersonagens[i]];
   }
 
-  // Renderizar a roleta
+  // Renderizar imagens na roleta
   roletaPersonagens.forEach(p => {
     const img = document.createElement("img");
     img.src = p.imagem;
@@ -314,35 +316,69 @@ function rodarGacha() {
   });
 
   const imagens = roleta.querySelectorAll("img");
-  const larguraItem = 110;
-  const totalScroll = (imagens.length - 10) * larguraItem;
+  const larguraItem = 110; // largura + margin
+  const containerWidth = roleta.clientWidth;
 
-  // Escolher um personagem aleatório final
-  const escolhido = personagensOriginais[Math.floor(Math.random() * personagensOriginais.length)];
+  // Escolhe personagem sorteado da lista que ainda não foi desbloqueado
+  const disponiveis = personagensOriginais.filter(p => !desbloqueados.includes(p.nome));
+  if (disponiveis.length === 0) {
+    alert("Você já desbloqueou todos os personagens!");
+    botaoFechar.style.display = "block";
+    return;
+  }
+  const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
 
+  // Encontrar a primeira ocorrência do personagem sorteado na roleta
   const indexFinal = roletaPersonagens.findIndex(p => p.nome === escolhido.nome);
 
-  // Scroll suave para o personagem escolhido
-  const destinoScroll = indexFinal * larguraItem - 200;
-  let atual = 0;
-  const intervalo = setInterval(() => {
-    atual += 40;
-    roleta.scrollLeft = atual;
-    if (atual >= destinoScroll) {
-      clearInterval(intervalo);
+  // Calcular scroll para centralizar o personagem sorteado
+  let destinoScroll = indexFinal * larguraItem - containerWidth / 2 + larguraItem / 2;
+  if (destinoScroll < 0) destinoScroll = 0;
+  if (destinoScroll > roleta.scrollWidth - containerWidth) destinoScroll = roleta.scrollWidth - containerWidth;
 
-      // Efeito de destaque
+  let velocidade = 40; // velocidade inicial para scroll
+  let animFrameId;
+
+  function animarScroll() {
+    let diff = destinoScroll - roleta.scrollLeft;
+    let passo = Math.min(Math.abs(diff), velocidade);
+
+    if (diff > 0) {
+      roleta.scrollLeft += passo;
+    } else {
+      roleta.scrollLeft -= passo;
+    }
+
+    velocidade *= 0.92; // desacelera o scroll
+
+    if (Math.abs(diff) < 1 && velocidade < 0.5) {
+      cancelAnimationFrame(animFrameId);
+
+      // Destaca personagem sorteado
+      imagens.forEach(img => {
+        img.style.transform = "scale(1)";
+        img.style.boxShadow = "none";
+      });
       imagens[indexFinal].style.transform = "scale(1.4)";
       imagens[indexFinal].style.boxShadow = "0 0 20px gold";
 
-      // Desbloqueia se for novo
-      if (!desbloqueados.includes(escolhido.nome)) {
-        desbloqueados.push(escolhido.nome);
-        salvarDesbloqueados();
-        alert(`🎉 Você desbloqueou ${escolhido.nome}!`);
-      } else {
-        alert(`${escolhido.nome} já estava desbloqueado.`);
-      }
+      // Desbloqueia personagem
+      desbloqueados.push(escolhido.nome);
+      salvarDesbloqueados();
+      alert(`🎉 Você desbloqueou: ${escolhido.nome}!`);
+      
+      // Atualiza lista e botão fechar
+      personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
+      renderPersonagens();
+      botaoFechar.style.display = "block";
+      return;
+    }
+
+    animFrameId = requestAnimationFrame(animarScroll);
+  }
+
+  animFrameId = requestAnimationFrame(animarScroll);
+}
 
       botaoFechar.style.display = "block";
       renderPersonagens();
