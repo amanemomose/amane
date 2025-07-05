@@ -178,6 +178,34 @@
     #fecharPerfil:hover {
       background: #2980b9;
     }
+     }
+    #gachaRoll {
+      display:flex; 
+      overflow:hidden; 
+      justify-content:center; 
+      align-items:center; 
+      height:150px; 
+      margin-top:20px;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none;  /* IE 10+ */
+    }
+    #gachaRoll::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
+    }
+    #gachaFechar {
+      margin-top:20px; 
+      display:none; 
+      background-color:#3498db; 
+      color:white; 
+      border:none; 
+      border-radius:5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    #gachaFechar:hover {
+      background-color: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -225,7 +253,9 @@
       { nome: "Junko Enoshima", imagem: "https://i.imgur.com/vDB0UhD.png", F: 3, S: 4, P: 2, I: 5, C: 4 }
       
     ];
+    let desbloqueados = JSON.parse(localStorage.getItem("desbloqueados")) || [];
     let personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
+    
     let brackets = [];
     let rodadaAtual = [];
     let proximaRodada = [];
@@ -240,33 +270,32 @@
 
     function renderPersonagens() {
   const lista = document.getElementById("personagensLista");
-  lista.innerHTML = "";
-  let desbloqueados = JSON.parse(localStorage.getItem("desbloqueados")) || [];
-  let personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
-  personagens.forEach((p) => {
-    const card = document.createElement("div");
-    card.className = "personagemCard";
-    card.draggable = true;
-    card.dataset.nome = p.nome;
-    card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
-    card.onclick = () => abrirPerfil(p);
-    card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", p.nome));
-    lista.appendChild(card);
-  });
-}
-    // Lista de personagens desbloqueados
-let desbloqueados = JSON.parse(localStorage.getItem("desbloqueados")) || [];
+      lista.innerHTML = "";
+      personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
+      personagens.forEach((p) => {
+        const card = document.createElement("div");
+        card.className = "personagemCard";
+        card.draggable = true;
+        card.dataset.nome = p.nome;
+        card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
+        card.onclick = () => abrirPerfil(p);
+        card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", p.nome));
+        lista.appendChild(card);
+      });
+    }
+    
+    // Salva no localStorage
+    function salvarDesbloqueados() {
+      localStorage.setItem("desbloqueados", JSON.stringify(desbloqueados));
+    }
 
-// Salva a lista no localStorage
-function salvarDesbloqueados() {
-  localStorage.setItem("desbloqueados", JSON.stringify(desbloqueados));
-}
-function resetarDesbloqueios() {
-  if (confirm("Tem certeza que deseja apagar todos os desbloqueios?")) {
-    localStorage.removeItem("desbloqueados");
-    location.reload();
-  }
-}
+    // Reseta desbloqueios
+    function resetarDesbloqueios() {
+      if (confirm("Tem certeza que deseja apagar todos os desbloqueios?")) {
+        localStorage.removeItem("desbloqueados");
+        location.reload();
+      }
+    }
 
 // Função para rodar o gacha
 function rodarGacha() {
@@ -305,7 +334,6 @@ function rodarGacha() {
     [roletaPersonagens[i], roletaPersonagens[j]] = [roletaPersonagens[j], roletaPersonagens[i]];
   }
 
-  // Renderizar imagens na roleta
   roletaPersonagens.forEach(p => {
     const img = document.createElement("img");
     img.src = p.imagem;
@@ -318,45 +346,34 @@ function rodarGacha() {
   });
 
   const imagens = roleta.querySelectorAll("img");
-  const larguraItem = 110; // largura + margin
+  const larguraItem = 110;
   const containerWidth = roleta.clientWidth;
 
-  // Escolhe personagem sorteado da lista que ainda não foi desbloqueado
   const disponiveis = personagensOriginais.filter(p => !desbloqueados.includes(p.nome));
   if (disponiveis.length === 0) {
     alert("Você já desbloqueou todos os personagens!");
     botaoFechar.style.display = "block";
     return;
   }
-  const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
 
-  // Encontrar a primeira ocorrência do personagem sorteado na roleta
+  const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
   const indexFinal = roletaPersonagens.findIndex(p => p.nome === escolhido.nome);
 
-  // Calcular scroll para centralizar o personagem sorteado
   let destinoScroll = indexFinal * larguraItem - containerWidth / 2 + larguraItem / 2;
-  if (destinoScroll < 0) destinoScroll = 0;
-  if (destinoScroll > roleta.scrollWidth - containerWidth) destinoScroll = roleta.scrollWidth - containerWidth;
+  destinoScroll = Math.max(0, Math.min(destinoScroll, roleta.scrollWidth - containerWidth));
 
-  let velocidade = 40; // velocidade inicial para scroll
+  let velocidade = 40;
   let animFrameId;
 
   function animarScroll() {
-    let diff = destinoScroll - roleta.scrollLeft;
-    let passo = Math.min(Math.abs(diff), velocidade);
+    const diff = destinoScroll - roleta.scrollLeft;
+    const passo = Math.min(Math.abs(diff), velocidade);
 
-    if (diff > 0) {
-      roleta.scrollLeft += passo;
-    } else {
-      roleta.scrollLeft -= passo;
-    }
-
-    velocidade *= 0.92; // desacelera o scroll
+    roleta.scrollLeft += diff > 0 ? passo : -passo;
+    velocidade *= 0.92;
 
     if (Math.abs(diff) < 1 && velocidade < 0.5) {
       cancelAnimationFrame(animFrameId);
-
-      // Destaca personagem sorteado
       imagens.forEach(img => {
         img.style.transform = "scale(1)";
         img.style.boxShadow = "none";
@@ -364,13 +381,11 @@ function rodarGacha() {
       imagens[indexFinal].style.transform = "scale(1.4)";
       imagens[indexFinal].style.boxShadow = "0 0 20px gold";
 
-      // Desbloqueia personagem
       desbloqueados.push(escolhido.nome);
       salvarDesbloqueados();
+
       alert(`🎉 Você desbloqueou: ${escolhido.nome}!`);
-      
-      // Atualiza lista e botão fechar
-      personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
+
       renderPersonagens();
       botaoFechar.style.display = "block";
       return;
@@ -380,9 +395,6 @@ function rodarGacha() {
   }
 
   animFrameId = requestAnimationFrame(animarScroll);
-}
-    }
-  }, 20);
 }
 
 function fecharGacha() {
