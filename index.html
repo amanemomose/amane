@@ -241,6 +241,8 @@
     function renderPersonagens() {
   const lista = document.getElementById("personagensLista");
   lista.innerHTML = "";
+  let desbloqueados = JSON.parse(localStorage.getItem("desbloqueados")) || [];
+  let personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
   personagens.forEach((p) => {
     const card = document.createElement("div");
     card.className = "personagemCard";
@@ -415,16 +417,17 @@ function fecharGacha() {
         slot.textContent = "Solte aqui";
         slot.ondragover = e => e.preventDefault();
         slot.ondrop = e => {
-          const idx = e.dataTransfer.getData("text/plain");
-          const p = personagens[idx];
-          if (p && !brackets.includes(p)) {
-            brackets[i] = p;
-            atualizarSlots();
-            // Remove personagem do menu:
-            personagens.splice(idx, 1);
-            renderPersonagens();
-          }
-        };
+  e.preventDefault();
+  const nome = e.dataTransfer.getData("text/plain");
+  const p = personagens.find(personagem => personagem.nome === nome);
+  if (p && !brackets.includes(p)) {
+    brackets[i] = p;
+    // Remove personagem da lista de personagens disponíveis
+    personagens = personagens.filter(personagem => personagem.nome !== nome);
+    atualizarSlots();
+    renderPersonagens();
+  }
+};
         container.appendChild(slot);
       }
       atualizarSlots();
