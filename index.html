@@ -245,8 +245,16 @@
     card.draggable = true;
     card.dataset.nome = p.nome;
     card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
-    card.onclick = () => abrirPerfil(p);
-    card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", p.nome));
+    let foiArrastado = false;
+card.addEventListener("dragstart", e => {
+  foiArrastado = true;
+  e.dataTransfer.setData("text/plain", personagens.indexOf(p));
+});
+card.addEventListener("click", () => {
+  if (!foiArrastado) abrirPerfil(p);
+  foiArrastado = false;
+});
+    card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", personagens.indexOf(p)));
     lista.appendChild(card);
   });
 }
