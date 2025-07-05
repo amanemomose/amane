@@ -221,6 +221,9 @@
     let proximaRodada = [];
     let rodadaIndex = 0;
 
+    const categorias = ["Fart", "Shit", "Pee", "Spit", "Cruelty"];
+    let categoriaAtual = null;
+    
     const tamanhoSelect = document.getElementById("tamanho");
 
     tamanhoSelect.addEventListener("change", () => criarBrackets());
@@ -338,30 +341,37 @@
     }
 
     function mostrarPartida() {
-      const container = document.getElementById("jogos");
-      container.innerHTML = "";
-      if (rodadaAtual.length === 1) return exibirCampeao(rodadaAtual[0]);
-      const p1 = rodadaAtual[rodadaIndex];
-      const p2 = rodadaAtual[rodadaIndex + 1];
-      const jogo = document.createElement("div");
-      jogo.className = "jogo";
-      jogo.innerHTML = `
-        <div class="card">
-          <img src="${p1.imagem}" alt="${p1.nome}">
-          <h3>${p1.nome}</h3>
-          <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
-          <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
-        </div>
-        <div class="versus">VS</div>
-        <div class="card">
-          <img src="${p2.imagem}" alt="${p2.nome}">
-          <h3>${p2.nome}</h3>
-          <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
-          <button onclick="selecionarVencedor(${rodadaIndex}, 1)">Escolher</button>
-        </div>
-      `;
-      container.appendChild(jogo);
-    }
+  const container = document.getElementById("jogos");
+  container.innerHTML = "";
+
+  if (rodadaAtual.length === 1) return exibirCampeao(rodadaAtual[0]);
+
+  // Sorteia uma categoria para este confronto
+  categoriaAtual = categorias[Math.floor(Math.random() * categorias.length)];
+
+  const p1 = rodadaAtual[rodadaIndex];
+  const p2 = rodadaAtual[rodadaIndex + 1];
+
+  const jogo = document.createElement("div");
+  jogo.className = "jogo";
+  jogo.innerHTML = `
+    <h2 style="width: 100%; text-align: center;">🔥 Disputa de ${categoriaAtual}! 🔥</h2>
+    <div class="card">
+      <img src="${p1.imagem}" alt="${p1.nome}">
+      <h3>${p1.nome}</h3>
+      <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
+      <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
+    </div>
+    <div class="versus">VS</div>
+    <div class="card">
+      <img src="${p2.imagem}" alt="${p2.nome}">
+      <h3>${p2.nome}</h3>
+      <div class="status">Fart:${p2.F} | Shit:${p2.S} | Pee:${p2.P} | Spit:${p2.I} | Cruelty:${p2.C}</div>
+      <button onclick="selecionarVencedor(${rodadaIndex}, 1)">Escolher</button>
+    </div>
+  `;
+  container.appendChild(jogo);
+}
 
     function selecionarVencedor(index, escolhido) {
       const vencedor = escolhido === 0 ? rodadaAtual[index] : rodadaAtual[index + 1];
