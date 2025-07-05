@@ -26,19 +26,20 @@
     }
     .personagemCard {
       display: inline-block;
-      width: 180px;
-      margin: 10px;
+      width: 100px;
+      margin: 5px;
       text-align: center;
       background: #f8f9fa;
-      border-radius: 10px;
-      padding: 10px;
+      border-radius: 8px;
+      padding: 5px;
+      font-size: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       cursor: grab;
     }
     .personagemCard img {
       width: 100%;
       height: auto;
-      border-radius: 10px;
+      border-radius: 6px;
     }
     .brackets {
       display: flex;
@@ -163,8 +164,7 @@
         card.dataset.index = i;
         card.innerHTML = `
           <img src="${p.imagem}" alt="${p.nome}">
-          <h3>${p.nome}</h3>
-          <div class="status">F: ${p.F} | S: ${p.S} | P: ${p.P} | I: ${p.I} | C: ${p.C}</div>
+          <div>${p.nome}</div>
         `;
         card.addEventListener("dragstart", e => {
           e.dataTransfer.setData("text/plain", i);
@@ -201,24 +201,10 @@
     function preencherAutomaticamente() {
       for (let i = 0; i < brackets.length; i++) {
         if (!brackets[i] && personagens.length > 0) {
-          const p = personagens.shift();
-          brackets[i] = p;
+          brackets[i] = personagens.shift();
         }
       }
-      renderPersonagens();
       criarBrackets();
-      const container = document.getElementById("brackets");
-      container.innerHTML = "";
-      brackets.forEach(p => {
-        const slot = document.createElement("div");
-        slot.className = "slot";
-        if (p) {
-          slot.innerHTML = `<img src="${p.imagem}"><div class="nome">${p.nome}</div>`;
-        } else {
-          slot.textContent = "Vazio";
-        }
-        container.appendChild(slot);
-      });
     }
 
     function iniciarTorneio() {
