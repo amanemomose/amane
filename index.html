@@ -93,11 +93,21 @@
       margin: 20px 0;
       font-weight: bold;
     }
+    .status-box {
+      font-size: 14px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <div id="menu">
     <h1>Copa dos Personagens</h1>
+    <label for="modo">Modo:</label>
+    <select id="modo">
+      <option value="solo">Individual</option>
+      <option value="team">Times</option>
+    </select>
+    <br><br>
     <label for="tamanho">Tamanho do torneio:</label>
     <select id="tamanho">
       <option value="4">4 Participantes</option>
@@ -113,18 +123,19 @@
 
   <script>
     const personagens = [
-      { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png" },
-      { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png" },
-      { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png" },
-      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" },
-      { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png" },
-      { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png" },
-      { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png" },
-      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png" }
+      { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png", F: 5, S: 3, P: 4, I: 6, C: 2 },
+      { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png", F: 2, S: 5, P: 3, I: 4, C: 6 },
+      { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png", F: 2, S: 2, P: 3, I: 4, C: 5 },
+      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png", F: 4, S: 5, P: 4, I: 6, C: 3 },
+      { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png", F: 1, S: 4, P: 5, I: 2, C: 6 },
+      { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png", F: 6, S: 3, P: 4, I: 2, C: 4 },
+      { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png", F: 3, S: 2, P: 5, I: 6, C: 3 },
+      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", F: 3, S: 4, P: 2, I: 5, C: 4 }
     ];
 
     const personagensLista = document.getElementById("personagensLista");
     const tamanhoSelect = document.getElementById("tamanho");
+    const modoSelect = document.getElementById("modo");
     const brackets = document.getElementById("brackets");
     const jogosDiv = document.getElementById("jogos");
     const resultadoFinal = document.getElementById("resultadoFinal");
@@ -179,8 +190,9 @@
           return;
         }
         const imgs = [...partida.children];
-        rodadaAtual.push({ nome: imgs[0].title, imagem: imgs[0].src });
-        rodadaAtual.push({ nome: imgs[1].title, imagem: imgs[1].src });
+        const p1 = personagens.find(p => p.nome === imgs[0].title);
+        const p2 = personagens.find(p => p.nome === imgs[1].title);
+        rodadaAtual.push(p1, p2);
       }
       document.getElementById("menu").style.display = "none";
       jogosDiv.style.display = "block";
@@ -207,12 +219,16 @@
       const jogo = document.createElement("div");
       jogo.className = "jogo";
       jogo.innerHTML = `
-        <div>
-          <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
-        </div>
-        <div class="versus">VS</div>
-        <div>
-          <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
+        <div style="display: flex; justify-content: center; gap: 50px;">
+          <div>
+            <img src="${p1.imagem}" alt="${p1.nome}"><br><strong>${p1.nome}</strong>
+            <div class="status-box">F: ${p1.F} | S: ${p1.S} | P: ${p1.P} | I: ${p1.I} | C: ${p1.C}</div>
+          </div>
+          <div class="versus">VS</div>
+          <div>
+            <img src="${p2.imagem}" alt="${p2.nome}"><br><strong>${p2.nome}</strong>
+            <div class="status-box">F: ${p2.F} | S: ${p2.S} | P: ${p2.P} | I: ${p2.I} | C: ${p2.C}</div>
+          </div>
         </div>
         <br>
         <button onclick="escolherVencedor(${rodadaIndex}, 0)">${p1.nome} venceu</button>
@@ -239,10 +255,8 @@
       `;
     }
 
-    tamanhoSelect.addEventListener("change", () => {
-      criarBrackets(Number(tamanhoSelect.value));
-    });
-
+    tamanhoSelect.addEventListener("change", () => criarBrackets(Number(tamanhoSelect.value)));
+    modoSelect.addEventListener("change", () => criarBrackets(Number(tamanhoSelect.value)));
     btnIniciar.addEventListener("click", validarEIniciarTorneio);
 
     renderPersonagens();
