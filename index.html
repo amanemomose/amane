@@ -397,7 +397,7 @@
       document.getElementById("jogos").style.display = "none";
       const resumo = document.getElementById("resumoRodada");
       resumo.style.display = "block";
-      resumo.innerHTML = `<h2>Classificados para a próxima rodada:</h2><div id="participantesAtuais"></div><button onclick="continuarRodada()">Continuar Torneio</button>`;
+      resumo.innerHTML = `<h2>Classificados para a próxima rodada:</h2><div id="participantesAtuais"></div><button onclick="continuarRodadaIndividual()">Continuar Torneio</button>`;
       const container = document.getElementById("participantesAtuais");
       proximaRodada.forEach(p => {
         const mini = document.createElement("div");
