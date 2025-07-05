@@ -198,7 +198,7 @@
     <h3>Chaves do Torneio</h3>
     <div id="brackets" class="brackets"></div>
     <button onclick="preencherAutomaticamente()">Preencher Automaticamente</button>
-    <button onclick="iniciarTorneio()">Iniciar Torneio</button>
+    <button onclick="iniciarTorneioIndividual()">Iniciar Torneio Individual</button>
     <button onclick="iniciarTorneioTimes()">Iniciar Torneio por Times</button>
   </div>
 
@@ -362,7 +362,7 @@
       <img src="${p1.imagem}" alt="${p1.nome}">
       <h3>${p1.nome}</h3>
       <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
-      <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
+      <button onclick="selecionarVencedorIndividual(${rodadaIndex}, 0)">Escolher</button>
     </div>
     <div class="versus">
       VS<br>
@@ -372,7 +372,7 @@
       <img src="${p2.imagem}" alt="${p2.nome}">
       <h3>${p2.nome}</h3>
       <div class="status">Fart:${p2.F} | Shit:${p2.S} | Pee:${p2.P} | Spit:${p2.I} | Cruelty:${p2.C}</div>
-      <button onclick="selecionarVencedor(${rodadaIndex}, 1)">Escolher</button>
+      <button onclick="selecionarVencedorIndividual(${rodadaIndex}, 1)">Escolher</button>
     </div>
   `;
   container.appendChild(jogo);
