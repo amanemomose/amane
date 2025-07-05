@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Copa dos Personagens - Status</title>
+  <title>Copa dos Personagens - Modo Equipe</title>
   <style>
     body {
       font-family: sans-serif;
@@ -39,20 +39,20 @@
 
     #brackets {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       margin: 20px 0;
-      gap: 20px;
+      gap: 40px;
+      flex-wrap: wrap;
     }
 
     .bracketMatch {
       border: 2px dashed #999;
       padding: 10px;
-      width: 140px;
-      height: 140px;
+      width: 160px;
+      min-height: 360px;
       display: flex;
       flex-wrap: wrap;
-      align-content: space-around;
+      align-content: flex-start;
       justify-content: center;
       background-color: white;
       border-radius: 10px;
@@ -71,7 +71,7 @@
       background: white;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 650px;
+      width: 800px;
     }
 
     .versus {
@@ -85,7 +85,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 200px;
+      width: 220px;
       user-select: none;
     }
 
@@ -109,6 +109,12 @@
       font-size: 16px;
     }
 
+    .placar {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
     button {
       padding: 10px 20px;
       font-size: 16px;
@@ -119,16 +125,38 @@
       color: white;
       transition: background-color 0.3s ease;
       user-select: none;
+      margin-top: 10px;
     }
 
     button:hover {
       background-color: #0056b3;
     }
+
+    #modoSelect {
+      margin-bottom: 20px;
+      font-size: 18px;
+      padding: 6px;
+    }
+
+    #avisoEquipe {
+      color: #c00;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <div id="menu">
-    <h1>Copa dos Personagens - Com Status</h1>
+    <h1>Copa dos Personagens - Com Status e Modo Equipe</h1>
+
+    <label for="modoSelect">Modo:</label>
+    <select id="modoSelect">
+      <option value="individual" selected>Individual</option>
+      <option value="equipe">Equipe (5 personagens por time)</option>
+    </select>
+
+    <br><br>
+
     <label for="tamanho">Tamanho do torneio:</label>
     <select id="tamanho">
       <option value="4">4 Participantes</option>
@@ -136,6 +164,7 @@
     </select>
 
     <h2>Arraste os personagens para as chaves:</h2>
+    <div id="avisoEquipe" style="display:none;">No modo equipe, cada time deve ter 5 personagens (arraste 5 para cada caixa)</div>
     <div id="personagensLista"></div>
     <div id="brackets"></div>
     <button onclick="validarEIniciarTorneio()">Iniciar Torneio</button>
@@ -144,55 +173,90 @@
   <div id="jogos" style="display:none;"></div>
   <div id="resultadoFinal" style="display:none;"></div>
 
-  <script>
-    const categorias = ["F", "S", "P", "I", "C"];
+<script>
+  const categorias = ["F", "S", "P", "I", "C"];
 
-    // Personagens com status (valores 1 a 10)
-    const personagens = [
-      { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png", stats: {F:7, S:6, P:8, I:5, C:7} },
-      { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png", stats: {F:5, S:9, P:6, I:8, C:7} },
-      { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png", stats: {F:6, S:7, P:7, I:6, C:5} },
-      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png", stats: {F:8, S:5, P:9, I:7, C:6} },
-      { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png", stats: {F:4, S:6, P:5, I:7, C:9} },
-      { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png", stats: {F:9, S:8, P:7, I:4, C:5} },
-      { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png", stats: {F:5, S:6, P:5, I:9, C:7} },
-      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", stats: {F:7, S:7, P:6, I:6, C:6} }
-    ];
+  // Personagens com status (valores 1 a 10)
+  const personagens = [
+    { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png", stats: {F:7, S:6, P:8, I:5, C:7} },
+    { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png", stats: {F:5, S:9, P:6, I:8, C:7} },
+    { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png", stats: {F:6, S:7, P:7, I:6, C:5} },
+    { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png", stats: {F:8, S:5, P:9, I:7, C:6} },
+    { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png", stats: {F:4, S:6, P:5, I:7, C:9} },
+    { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png", stats: {F:9, S:8, P:7, I:4, C:5} },
+    { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png", stats: {F:5, S:6, P:5, I:9, C:7} },
+    { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", stats: {F:7, S:7, P:6, I:6, C:6} }
+  ];
 
-    const personagensLista = document.getElementById("personagensLista");
-    const tamanhoSelect = document.getElementById("tamanho");
-    const brackets = document.getElementById("brackets");
-    const jogosDiv = document.getElementById("jogos");
-    const resultadoFinal = document.getElementById("resultadoFinal");
+  const personagensLista = document.getElementById("personagensLista");
+  const tamanhoSelect = document.getElementById("tamanho");
+  const brackets = document.getElementById("brackets");
+  const jogosDiv = document.getElementById("jogos");
+  const resultadoFinal = document.getElementById("resultadoFinal");
+  const modoSelect = document.getElementById("modoSelect");
+  const avisoEquipe = document.getElementById("avisoEquipe");
 
-    let rodadaAtual = [];
-    let proximaRodada = [];
-    let rodadaIndex = 0;
-    let categoriaAtual = "";
+  let rodadaAtual = [];
+  let proximaRodada = [];
+  let rodadaIndex = 0;
 
-    function renderPersonagens() {
-      personagensLista.innerHTML = "";
-      personagens.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "personagemCard";
-        div.innerHTML = `
-          <img src="${p.imagem}" alt="${p.nome}">
-          <br>${p.nome}
-          <div class="status">
-            F: ${p.stats.F} | S: ${p.stats.S} | P: ${p.stats.P} | I: ${p.stats.I} | C: ${p.stats.C}
-          </div>
-        `;
-        div.draggable = true;
-        div.dataset.index = i;
-        div.addEventListener("dragstart", e => {
-          e.dataTransfer.setData("text/plain", i);
-        });
-        personagensLista.appendChild(div);
+  // Somente usado no modo equipe
+  let subDueloIndex = 0;
+  let placarEquipe1 = 0;
+  let placarEquipe2 = 0;
+  let modoEquipe = false;
+
+  function renderPersonagens() {
+    personagensLista.innerHTML = "";
+    personagens.forEach((p, i) => {
+      const div = document.createElement("div");
+      div.className = "personagemCard";
+      div.innerHTML = `
+        <img src="${p.imagem}" alt="${p.nome}">
+        <br>${p.nome}
+        <div class="status">
+          F: ${p.stats.F} | S: ${p.stats.S} | P: ${p.stats.P} | I: ${p.stats.I} | C: ${p.stats.C}
+        </div>
+      `;
+      div.draggable = true;
+      div.dataset.index = i;
+      div.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", i);
       });
-    }
+      personagensLista.appendChild(div);
+    });
+  }
 
-    function criarBrackets(tamanho) {
-      brackets.innerHTML = "";
+  function criarBrackets(tamanho) {
+    brackets.innerHTML = "";
+    modoEquipe = modoSelect.value === "equipe";
+    avisoEquipe.style.display = modoEquipe ? "block" : "none";
+
+    if (modoEquipe) {
+      // Cada caixa representa um time, deve ter 5 personagens
+      for (let i = 0; i < tamanho / 2; i++) {
+        const div = document.createElement("div");
+        div.className = "bracketMatch";
+        div.ondragover = e => e.preventDefault();
+        div.ondrop = e => {
+          const idx = e.dataTransfer.getData("text/plain");
+          const personagem = personagens[idx];
+          if (div.children.length < 5) {
+            for (let child of div.children) {
+              if (child.dataset.idx === idx) return; // não permite duplicar personagem no mesmo time
+            }
+            const img = document.createElement("img");
+            img.src = personagem.imagem;
+            img.alt = personagem.nome;
+            img.title = personagem.nome;
+            img.dataset.idx = idx;
+            div.appendChild(img);
+          }
+        };
+        brackets.appendChild(div);
+      }
+    } else {
+      // Modo individual: 2 personagens por caixa
       for (let i = 0; i < tamanho / 2; i++) {
         const div = document.createElement("div");
         div.className = "bracketMatch";
@@ -212,113 +276,244 @@
         brackets.appendChild(div);
       }
     }
+  }
 
-    function validarEIniciarTorneio() {
-      const partidas = [...brackets.children];
-      rodadaAtual = [];
-      proximaRodada = [];
+  function validarEIniciarTorneio() {
+    const partidas = [...brackets.children];
+    rodadaAtual = [];
+    proximaRodada = [];
+    rodadaIndex = 0;
+    subDueloIndex = 0;
+    placarEquipe1 = 0;
+    placarEquipe2 = 0;
+    modoEquipe = modoSelect.value === "equipe";
+
+    if (modoEquipe) {
+      // Validar times: cada time deve ter 5 personagens
+      for (const partida of partidas) {
+        if (partida.children.length !== 5) {
+          alert("Cada time deve ter 5 personagens no modo equipe!");
+          return;
+        }
+        const time = [];
+        for (const img of partida.children) {
+          time.push(personagens[Number(img.dataset.idx)]);
+        }
+        rodadaAtual.push(time);
+      }
+    } else {
+      // Validar personagens individuais
       for (const partida of partidas) {
         if (partida.children.length !== 2) {
-          alert("Todas as partidas devem ter 2 personagens!");
+          alert("Cada partida deve ter 2 personagens!");
           return;
         }
         const imgs = [...partida.children];
-        rodadaAtual.push(personagens[imgs[0].dataset.idx]);
-        rodadaAtual.push(personagens[imgs[1].dataset.idx]);
+        rodadaAtual.push(personagens[Number(imgs[0].dataset.idx)]);
+        rodadaAtual.push(personagens[Number(imgs[1].dataset.idx)]);
       }
-      document.getElementById("menu").style.display = "none";
-      jogosDiv.style.display = "block";
-      resultadoFinal.style.display = "none";
-      rodadaIndex = 0;
-      mostrarProximaPartida();
     }
 
-    function mostrarProximaPartida() {
-      jogosDiv.innerHTML = "";
+    document.getElementById("menu").style.display = "none";
+    jogosDiv.style.display = "block";
+    resultadoFinal.style.display = "none";
+
+    mostrarProximaPartida();
+  }
+
+  function mostrarProximaPartida() {
+    jogosDiv.innerHTML = "";
+
+    if (modoEquipe) {
+      if (rodadaIndex >= rodadaAtual.length) {
+        // Próxima rodada ou fim
+        if (proximaRodada.length === 1) {
+          exibirCampeao(proximaRodada[0]);
+          return;
+        }
+        rodadaAtual = [...proximaRodada];
+        proximaRodada = [];
+        rodadaIndex = 0;
+        mostrarProximaPartida();
+        return;
+      }
+
+      // Exibir duelo equipe atual
+      placarEquipe1 = 0;
+      placarEquipe2 = 0;
+      subDueloIndex = 0;
+
+      mostrarSubDueloEquipe();
+    } else {
+      // Modo individual
       if (rodadaIndex >= rodadaAtual.length) {
         if (proximaRodada.length === 1) {
           exibirCampeao(proximaRodada[0]);
-        } else {
-          rodadaAtual = [...proximaRodada];
-          proximaRodada = [];
-          rodadaIndex = 0;
-          mostrarProximaPartida();
+          return;
         }
+        rodadaAtual = [...proximaRodada];
+        proximaRodada = [];
+        rodadaIndex = 0;
+        mostrarProximaPartida();
         return;
       }
 
       const p1 = rodadaAtual[rodadaIndex];
       const p2 = rodadaAtual[rodadaIndex + 1];
-      categoriaAtual = categorias[Math.floor(Math.random() * categorias.length)];
 
       const jogo = document.createElement("div");
       jogo.className = "jogo";
       jogo.innerHTML = `
         <div style="display:flex; justify-content:center; align-items:center; gap:50px;">
           <div class="personagem">
-            <img src="${p1.imagem}" alt="${p1.nome}" style="width:200px; height:200px; border-radius:20px;"><br>${p1.nome}
-            <div class="statusLuta">Status na categoria <strong>${categoriaAtual}</strong>:</div>
-            <div class="statusValores">${p1.stats[categoriaAtual]}</div>
+            <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
+            <div class="statusValores">F:${p1.stats.F} S:${p1.stats.S} P:${p1.stats.P} I:${p1.stats.I} C:${p1.stats.C}</div>
           </div>
           <div class="versus">VS</div>
           <div class="personagem">
-            <img src="${p2.imagem}" alt="${p2.nome}" style="width:200px; height:200px; border-radius:20px;"><br>${p2.nome}
-            <div class="statusLuta">Status na categoria <strong>${categoriaAtual}</strong>:</div>
-            <div class="statusValores">${p2.stats[categoriaAtual]}</div>
+            <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
+            <div class="statusValores">F:${p2.stats.F} S:${p2.stats.S} P:${p2.stats.P} I:${p2.stats.I} C:${p2.stats.C}</div>
           </div>
         </div>
         <br>
-        <button id="verResultado">Ver Resultado</button>
+        <button onclick="mostrarResultadoPartidaIndividual()">Ver Resultado</button>
       `;
       jogosDiv.appendChild(jogo);
-
-      document.getElementById("verResultado").onclick = () => mostrarResultadoPartida(p1, p2, categoriaAtual);
     }
+  }
 
-    function mostrarResultadoPartida(p1, p2, categoria) {
-      let vencedor;
-      if (p1.stats[categoria] > p2.stats[categoria]) vencedor = p1;
-      else if (p2.stats[categoria] > p1.stats[categoria]) vencedor = p2;
+  // Mostra o duelo da sub-partida da equipe (uma categoria de 5)
+  function mostrarSubDueloEquipe() {
+    jogosDiv.innerHTML = "";
+
+    if (subDueloIndex >= categorias.length) {
+      // fim da partida - decide vencedor da equipe
+      let vencedorEquipe;
+      if (placarEquipe1 > placarEquipe2) vencedorEquipe = rodadaAtual[rodadaIndex];
+      else if (placarEquipe2 > placarEquipe1) vencedorEquipe = rodadaAtual[rodadaIndex + 1];
       else {
-        // empate: sorteia vencedor
-        vencedor = Math.random() < 0.5 ? p1 : p2;
+        // empate geral, desempate random
+        vencedorEquipe = Math.random() < 0.5 ? rodadaAtual[rodadaIndex] : rodadaAtual[rodadaIndex + 1];
       }
-      proximaRodada.push(vencedor);
+      proximaRodada.push(vencedorEquipe);
 
-      const resultado = document.createElement("div");
-      resultado.innerHTML = `
-        <h2>Vencedor: ${vencedor.nome}</h2>
-        <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width:150px; height:150px; border-radius:20px;"><br><br>
+      jogosDiv.innerHTML = `
+        <h2>Resultado da Partida de Equipes</h2>
+        <p>Equipe 1 venceu ${placarEquipe1} duelos</p>
+        <p>Equipe 2 venceu ${placarEquipe2} duelos</p>
+        <h3>Vencedor: Time com ${vencedorEquipe[0].nome} (primeiro personagem)</h3>
+        <button onclick="continuarEquipe()">Próxima Partida</button>
       `;
-
-      const btnProximo = document.createElement("button");
-      btnProximo.textContent = "Próxima Partida";
-      btnProximo.onclick = () => {
-        rodadaIndex += 2;
-        mostrarProximaPartida();
-      };
-
-      jogosDiv.appendChild(resultado);
-      jogosDiv.appendChild(btnProximo);
+      return;
     }
 
-    function exibirCampeao(vencedor) {
-      jogosDiv.style.display = "none";
-      resultadoFinal.style.display = "block";
-      resultadoFinal.innerHTML = `
-        <h2>🏆 Campeão: ${vencedor.nome} 🏆</h2>
-        <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width: 200px; height: 200px; border-radius: 20px;">
-        <br><br>
-        <button onclick="location.reload()">Voltar ao Início</button>
-      `;
-    }
+    // duelo atual:
+    const cat = categorias[subDueloIndex];
+    const time1 = rodadaAtual[rodadaIndex];
+    const time2 = rodadaAtual[rodadaIndex + 1];
+    const p1 = time1[subDueloIndex];
+    const p2 = time2[subDueloIndex];
 
-    tamanhoSelect.addEventListener("change", () => {
-      criarBrackets(Number(tamanhoSelect.value));
-    });
+    jogosDiv.innerHTML = `
+      <div class="jogo" style="width: 800px;">
+        <div style="display:flex; justify-content:center; align-items:center; gap:40px;">
+          <div class="personagem">
+            <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
+            <div class="statusLuta">Categoria: ${cat}</div>
+            <div class="statusValores">${cat}: ${p1.stats[cat]}</div>
+          </div>
+          <div class="versus">VS</div>
+          <div class="personagem">
+            <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
+            <div class="statusLuta">Categoria: ${cat}</div>
+            <div class="statusValores">${cat}: ${p2.stats[cat]}</div>
+          </div>
+        </div>
+        <br>
+        <div class="placar">
+          Placar: Equipe 1 - ${placarEquipe1} | Equipe 2 - ${placarEquipe2}
+        </div>
+        <button onclick="mostrarResultadoSubDueloEquipe()">Ver Resultado</button>
+      </div>
+    `;
+  }
 
-    renderPersonagens();
+  function mostrarResultadoSubDueloEquipe() {
+    const cat = categorias[subDueloIndex];
+    const time1 = rodadaAtual[rodadaIndex];
+    const time2 = rodadaAtual[rodadaIndex + 1];
+    const p1 = time1[subDueloIndex];
+    const p2 = time2[subDueloIndex];
+
+    let vencedorDuelista;
+    if (p1.stats[cat] > p2.stats[cat]) vencedorDuelista = 1;
+    else if (p2.stats[cat] > p1.stats[cat]) vencedorDuelista = 2;
+    else vencedorDuelista = Math.random() < 0.5 ? 1 : 2;
+
+    if (vencedorDuelista === 1) placarEquipe1++;
+    else placarEquipe2++;
+
+    jogosDiv.innerHTML += `<p><strong>Duelo de ${cat} vencido por: Equipe ${vencedorDuelista}</strong></p>`;
+
+    subDueloIndex++;
+  }
+
+  function continuarEquipe() {
+    rodadaIndex += 2;
+    mostrarProximaPartida();
+  }
+
+  function mostrarResultadoPartidaIndividual() {
+    const p1 = rodadaAtual[rodadaIndex];
+    const p2 = rodadaAtual[rodadaIndex + 1];
+    const cat = categorias[Math.floor(Math.random() * categorias.length)];
+
+    let vencedor;
+    if (p1.stats[cat] > p2.stats[cat]) vencedor = p1;
+    else if (p2.stats[cat] > p1.stats[cat]) vencedor = p2;
+    else vencedor = Math.random() < 0.5 ? p1 : p2;
+
+    proximaRodada.push(vencedor);
+
+    jogosDiv.innerHTML += `<h2>Categoria da luta: ${cat}</h2>`;
+    jogosDiv.innerHTML += `
+      <h2>Vencedor: ${vencedor.nome}</h2>
+      <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width:150px; height:150px; border-radius:20px;">
+      <br><br>
+      <button onclick="proximaPartidaIndividual()">Próxima Partida</button>
+    `;
+  }
+
+  function proximaPartidaIndividual() {
+    rodadaIndex += 2;
+    mostrarProximaPartida();
+  }
+
+  function exibirCampeao(vencedor) {
+    jogosDiv.style.display = "none";
+    resultadoFinal.style.display = "block";
+    let nomeCampeao = modoEquipe ? vencedor[0].nome + " e equipe" : vencedor.nome;
+
+    resultadoFinal.innerHTML = `
+      <h2>🏆 Campeão: ${nomeCampeao} 🏆</h2>
+      <img src="${modoEquipe ? vencedor[0].imagem : vencedor.imagem}" alt="Campeão" style="width: 200px; height: 200px; border-radius: 20px;">
+      <br><br>
+      <button onclick="location.reload()">Voltar ao Início</button>
+    `;
+  }
+
+  modoSelect.addEventListener("change", () => {
     criarBrackets(Number(tamanhoSelect.value));
-  </script>
+  });
+
+  tamanhoSelect.addEventListener("change", () => {
+    criarBrackets(Number(tamanhoSelect.value));
+  });
+
+  // Inicializa
+  renderPersonagens();
+  criarBrackets(Number(tamanhoSelect.value));
+</script>
+
 </body>
 </html>
