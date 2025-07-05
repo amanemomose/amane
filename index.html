@@ -235,19 +235,19 @@
     tamanhoSelect.addEventListener("change", () => criarBrackets());
 
     function renderPersonagens() {
-      const lista = document.getElementById("personagensLista");
-      lista.innerHTML = "";
-      personagens.forEach((p, i) => {
-        const card = document.createElement("div");
-        card.className = "personagemCard";
-        card.draggable = true;
-        card.dataset.index = i;
-        card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
-        card.onclick = () => abrirPerfil(p);
-        card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", i));
-        lista.appendChild(card);
-      });
-    }
+  const lista = document.getElementById("personagensLista");
+  lista.innerHTML = "";
+  personagens.forEach((p) => {
+    const card = document.createElement("div");
+    card.className = "personagemCard";
+    card.draggable = true;
+    card.dataset.nome = p.nome;
+    card.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><div>${p.nome}</div>`;
+    card.onclick = () => abrirPerfil(p);
+    card.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", p.nome));
+    lista.appendChild(card);
+  });
+}
     function abrirPerfil(personagem) {
       const popup = document.getElementById("perfilPopup");
       popup.innerHTML = `
