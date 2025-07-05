@@ -347,7 +347,7 @@
   const container = document.getElementById("jogos");
   container.innerHTML = "";
 
-  if (rodadaAtual.length === 1) return exibirCampeao(rodadaAtual[0]);
+  if (rodadaAtual.length === 1) return exibirCampeaoIndividual(rodadaAtual[0]);
 
   // Sorteia uma categoria para este confronto
   categoriaAtual = categorias[Math.floor(Math.random() * categorias.length)];
