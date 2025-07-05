@@ -308,7 +308,9 @@ function rodarGacha() {
   const sorteado = disponiveis[Math.floor(Math.random() * disponiveis.length)];
   desbloqueados.push(sorteado.nome);
   salvarDesbloqueados();
-  alert(`🎉 Você desbloqueou: ${sorteado.nome}!`);
+  const anuncio = document.createElement("div");
+  anuncio.innerHTML = `<h3>Desbloqueado: ${escolhido.nome}!</h3>`;
+  popup.appendChild(anuncio);
   personagens = personagensOriginais.filter(p => desbloqueados.includes(p.nome));
   renderPersonagens();
 }
@@ -324,7 +326,7 @@ function rodarGacha() {
 
   // Criar array grande com personagens repetidos para simular roleta
   let roletaPersonagens = [];
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 10; i++) {
     roletaPersonagens.push(...personagensOriginais);
   }
 
@@ -357,7 +359,8 @@ function rodarGacha() {
   }
 
   const escolhido = disponiveis[Math.floor(Math.random() * disponiveis.length)];
-  const indexFinal = roletaPersonagens.findIndex(p => p.nome === escolhido.nome);
+  const imagensArray = Array.from(roleta.querySelectorAll("img"));
+  const indexFinal = imagensArray.findIndex(img => img.title === escolhido.nome);
 
   let destinoScroll = indexFinal * larguraItem - containerWidth / 2 + larguraItem / 2;
   destinoScroll = Math.max(0, Math.min(destinoScroll, roleta.scrollWidth - containerWidth));
@@ -798,13 +801,16 @@ function fecharGacha() {
 
       final.innerHTML = html;
     }
+    
+    <div id="gachaPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:3px solid #3498db; border-radius:12px; padding:20px; z-index:9999; width:80%; max-width:700px; box-shadow:0 10px 20px rgba(0,0,0,0.3); text-align:center;">
+  <h2>Rodando Gacha...</h2>
+  <div id="gachaRoll"></div>
+  <button onclick="fecharGacha()" style="margin-top:20px; display:none;" id="gachaFechar">Fechar</button>
+</div>
+    
     renderPersonagens();
     criarBrackets();
   </script>
-  <div id="gachaPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:3px solid #3498db; border-radius:12px; padding:20px; z-index:9999; width:80%; max-width:700px; box-shadow:0 10px 20px rgba(0,0,0,0.3); text-align:center;">
-  <h2>Rodando Gacha...</h2>
-  <div id="gachaRoll" style="display:flex; overflow:hidden; justify-content:center; align-items:center; height:150px; margin-top:20px;"></div>
-  <button onclick="fecharGacha()" style="margin-top:20px; display:none;" id="gachaFechar">Fechar</button>
 </div>
 </body>
 </html>
