@@ -355,14 +355,16 @@
   const jogo = document.createElement("div");
   jogo.className = "jogo";
   jogo.innerHTML = `
-    <h2 style="width: 100%; text-align: center;">${categoriaAtual}</h2>
     <div class="card">
       <img src="${p1.imagem}" alt="${p1.nome}">
       <h3>${p1.nome}</h3>
       <div class="status">Fart:${p1.F} | Shit:${p1.S} | Pee:${p1.P} | Spit:${p1.I} | Cruelty:${p1.C}</div>
       <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
     </div>
-    <div class="versus">VS</div>
+    <div class="versus">
+      VS<br>
+      <span style="font-size: 16px; color: #555;">(${categoriaAtual})</span>
+    </div>
     <div class="card">
       <img src="${p2.imagem}" alt="${p2.nome}">
       <h3>${p2.nome}</h3>
@@ -372,16 +374,6 @@
   `;
   container.appendChild(jogo);
 }
-
-    function selecionarVencedor(index, escolhido) {
-      const vencedor = escolhido === 0 ? rodadaAtual[index] : rodadaAtual[index + 1];
-      proximaRodada.push(vencedor);
-      rodadaIndex += 2;
-      if (rodadaIndex >= rodadaAtual.length) {
-        mostrarResumoRodada();
-      } else {
-        mostrarPartida();
-      }
     }
 
     function mostrarResumoRodada() {
