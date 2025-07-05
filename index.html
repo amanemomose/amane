@@ -24,107 +24,63 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       margin-top: 20px;
     }
-    #personagensLista {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
-    }
     .personagemCard {
-      width: 120px;
+      display: inline-block;
+      width: 200px;
+      margin: 10px;
       text-align: center;
       background: #f8f9fa;
       border-radius: 10px;
       padding: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      cursor: grab;
     }
     .personagemCard img {
       width: 100%;
+      height: auto;
       border-radius: 10px;
-    }
-    .status {
-      font-size: 12px;
-      margin-top: 5px;
-    }
-    .bracketMatch {
-      border: 1px dashed #aaa;
-      min-height: 260px;
-      width: 260px;
-      background: #f1f1f1;
-      padding: 10px;
-      margin: 10px;
-      border-radius: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    #brackets {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .bracketMatch img {
-      width: 60px;
-      height: 60px;
-      margin: 5px;
-      border-radius: 8px;
-      object-fit: cover;
-    }
-    button {
-      background: #3498db;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #2980b9;
     }
     .jogo {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 30px 0;
+    }
+    .jogo .card {
+      width: 250px;
       text-align: center;
     }
-    .jogo img {
-      width: 100px;
-      height: 100px;
+    .jogo .card img {
+      width: 100%;
       border-radius: 10px;
-      margin: 10px;
     }
     .versus {
-      font-size: 24px;
-      margin: 20px 0;
+      font-size: 36px;
       font-weight: bold;
     }
-    .status-box {
+    .status {
       font-size: 14px;
       margin-top: 10px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
     }
   </style>
 </head>
 <body>
   <div id="menu">
     <h1>Copa dos Personagens</h1>
-    <label for="modo">Modo:</label>
-    <select id="modo">
-      <option value="solo">Individual</option>
-      <option value="team">Times</option>
-    </select>
-    <br><br>
-    <label for="tamanho">Tamanho do torneio:</label>
-    <select id="tamanho">
-      <option value="4">4 Participantes</option>
-      <option value="8" selected>8 Participantes</option>
-      <option value="16">16 Participantes</option>
-      <option value="24">24 Participantes</option>
-    </select>
-    <br><br>
-    <button onclick="preencherAleatoriamente()">Preencher Aleatoriamente</button>
     <div id="personagensLista"></div>
-    <div id="brackets"></div>
-    <button id="btnIniciar">Iniciar Torneio</button>
+    <button onclick="iniciarTorneio()">Iniciar Torneio</button>
   </div>
 
   <div id="jogos" style="display:none;"></div>
@@ -139,97 +95,95 @@
       { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png", F: 1, S: 4, P: 5, I: 2, C: 6 },
       { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png", F: 6, S: 3, P: 4, I: 2, C: 4 },
       { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png", F: 3, S: 2, P: 5, I: 6, C: 3 },
-      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", F: 3, S: 4, P: 2, I: 5, C: 4 },
-      { nome: "Mob", imagem: "https://i.imgur.com/NjGnL28.png", F: 5, S: 4, P: 4, I: 6, C: 3 },
-      { nome: "Megumin", imagem: "https://i.imgur.com/wN1eFo4.png", F: 2, S: 3, P: 6, I: 5, C: 2 },
-      { nome: "Todd", imagem: "https://i.imgur.com/ytbfOW0.png", F: 3, S: 3, P: 3, I: 2, C: 6 },
-      { nome: "Matpat", imagem: "https://i.imgur.com/k2x0rkB.png", F: 2, S: 2, P: 2, I: 5, C: 5 }
+      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", F: 3, S: 4, P: 2, I: 5, C: 4 }
     ];
 
-    let usados = new Set();
+    let rodadaAtual = [];
+    let proximaRodada = [];
+    let rodadaIndex = 0;
 
     function renderPersonagens() {
       const container = document.getElementById("personagensLista");
       container.innerHTML = "";
-      personagens.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "personagemCard";
-        div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
-        if (!usados.has(i)) {
-          div.draggable = true;
-          div.dataset.index = i;
-          div.addEventListener("dragstart", e => {
-            e.dataTransfer.setData("text/plain", i);
-          });
-        } else {
-          div.style.opacity = 0.4;
-        }
-        container.appendChild(div);
+      personagens.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "personagemCard";
+        card.innerHTML = `
+          <img src="${p.imagem}" alt="${p.nome}">
+          <h3>${p.nome}</h3>
+          <div class="status">F: ${p.F} | S: ${p.S} | P: ${p.P} | I: ${p.I} | C: ${p.C}</div>
+        `;
+        container.appendChild(card);
       });
     }
 
-    function criarBrackets(tamanho) {
-      const modo = document.getElementById("modo").value;
-      const container = document.getElementById("brackets");
+    function iniciarTorneio() {
+      rodadaAtual = [...personagens];
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("jogos").style.display = "block";
+      rodadaIndex = 0;
+      proximaRodada = [];
+      mostrarPartida();
+    }
+
+    function mostrarPartida() {
+      const container = document.getElementById("jogos");
       container.innerHTML = "";
-      const totalTimes = tamanho / 2;
-      for (let i = 0; i < totalTimes; i++) {
-        const div = document.createElement("div");
-        div.className = "bracketMatch";
-        div.ondragover = e => e.preventDefault();
-        div.ondrop = e => {
-          const idx = parseInt(e.dataTransfer.getData("text/plain"));
-          if (!usados.has(idx)) {
-            const personagem = personagens[idx];
-            const img = document.createElement("img");
-            img.src = personagem.imagem;
-            img.alt = personagem.nome;
-            img.title = personagem.nome;
-            div.appendChild(img);
-            usados.add(idx);
-            renderPersonagens();
-          }
-        };
-        container.appendChild(div);
+
+      if (rodadaAtual.length === 1) {
+        exibirCampeao(rodadaAtual[0]);
+        return;
       }
+
+      const p1 = rodadaAtual[rodadaIndex];
+      const p2 = rodadaAtual[rodadaIndex + 1];
+
+      const jogo = document.createElement("div");
+      jogo.className = "jogo";
+      jogo.innerHTML = `
+        <div class="card">
+          <img src="${p1.imagem}" alt="${p1.nome}">
+          <h3>${p1.nome}</h3>
+          <div class="status">F: ${p1.F} | S: ${p1.S} | P: ${p1.P} | I: ${p1.I} | C: ${p1.C}</div>
+          <button onclick="selecionarVencedor(${rodadaIndex}, 0)">Escolher</button>
+        </div>
+        <div class="versus">VS</div>
+        <div class="card">
+          <img src="${p2.imagem}" alt="${p2.nome}">
+          <h3>${p2.nome}</h3>
+          <div class="status">F: ${p2.F} | S: ${p2.S} | P: ${p2.P} | I: ${p2.I} | C: ${p2.C}</div>
+          <button onclick="selecionarVencedor(${rodadaIndex}, 1)">Escolher</button>
+        </div>
+      `;
+      container.appendChild(jogo);
     }
 
-    function preencherAleatoriamente() {
-      const brackets = document.querySelectorAll(".bracketMatch");
-      const restantes = personagens.map((_, i) => i).filter(i => !usados.has(i));
-      for (const bracket of brackets) {
-        while (bracket.children.length < 10 && restantes.length > 0) {
-          const idx = restantes.splice(Math.floor(Math.random() * restantes.length), 1)[0];
-          usados.add(idx);
-          const personagem = personagens[idx];
-          const img = document.createElement("img");
-          img.src = personagem.imagem;
-          img.alt = personagem.nome;
-          img.title = personagem.nome;
-          bracket.appendChild(img);
-        }
+    function selecionarVencedor(index, escolhido) {
+      const vencedor = escolhido === 0 ? rodadaAtual[index] : rodadaAtual[index + 1];
+      proximaRodada.push(vencedor);
+      rodadaIndex += 2;
+      if (rodadaIndex >= rodadaAtual.length) {
+        rodadaAtual = [...proximaRodada];
+        proximaRodada = [];
+        rodadaIndex = 0;
       }
-      renderPersonagens();
+      mostrarPartida();
     }
 
-    document.getElementById("tamanho").addEventListener("change", e => {
-      usados.clear();
-      renderPersonagens();
-      criarBrackets(Number(e.target.value));
-    });
-
-    document.getElementById("modo").addEventListener("change", () => {
-      usados.clear();
-      renderPersonagens();
-      criarBrackets(Number(document.getElementById("tamanho").value));
-    });
-
-    document.getElementById("btnIniciar").addEventListener("click", () => {
-      alert("A lógica completa do modo de times com batalhas de 5 personagens ainda será implementada.");
-    });
+    function exibirCampeao(vencedor) {
+      document.getElementById("jogos").style.display = "none";
+      const final = document.getElementById("resultadoFinal");
+      final.style.display = "block";
+      final.innerHTML = `
+        <h2>🏆 Campeão: ${vencedor.nome} 🏆</h2>
+        <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width: 300px; border-radius: 20px;">
+        <div class="status">F: ${vencedor.F} | S: ${vencedor.S} | P: ${vencedor.P} | I: ${vencedor.I} | C: ${vencedor.C}</div>
+        <br><br>
+        <button onclick="location.reload()">Voltar ao Início</button>
+      `;
+    }
 
     renderPersonagens();
-    criarBrackets(Number(document.getElementById("tamanho").value));
   </script>
 </body>
 </html>
