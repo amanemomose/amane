@@ -37,6 +37,7 @@
       border-radius: 10px;
       padding: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: grab;
     }
     .personagemCard img {
       width: 100%;
@@ -49,11 +50,14 @@
     .bracketMatch {
       border: 1px dashed #aaa;
       min-height: 260px;
-      width: 160px;
+      width: 260px;
       background: #f1f1f1;
       padding: 10px;
       margin: 10px;
       border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
     }
     #brackets {
       display: flex;
@@ -75,6 +79,7 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
+      margin-top: 10px;
     }
     button:hover {
       background: #2980b9;
@@ -83,8 +88,8 @@
       text-align: center;
     }
     .jogo img {
-      width: 150px;
-      height: 150px;
+      width: 100px;
+      height: 100px;
       border-radius: 10px;
       margin: 10px;
     }
@@ -112,7 +117,11 @@
     <select id="tamanho">
       <option value="4">4 Participantes</option>
       <option value="8" selected>8 Participantes</option>
+      <option value="16">16 Participantes</option>
+      <option value="24">24 Participantes</option>
     </select>
+    <br><br>
+    <button onclick="preencherAleatoriamente()">Preencher Aleatoriamente</button>
     <div id="personagensLista"></div>
     <div id="brackets"></div>
     <button id="btnIniciar">Iniciar Torneio</button>
@@ -130,137 +139,95 @@
       { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png", F: 1, S: 4, P: 5, I: 2, C: 6 },
       { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png", F: 6, S: 3, P: 4, I: 2, C: 4 },
       { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png", F: 3, S: 2, P: 5, I: 6, C: 3 },
-      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", F: 3, S: 4, P: 2, I: 5, C: 4 }
+      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", F: 3, S: 4, P: 2, I: 5, C: 4 },
+      { nome: "Mob", imagem: "https://i.imgur.com/NjGnL28.png", F: 5, S: 4, P: 4, I: 6, C: 3 },
+      { nome: "Megumin", imagem: "https://i.imgur.com/wN1eFo4.png", F: 2, S: 3, P: 6, I: 5, C: 2 },
+      { nome: "Todd", imagem: "https://i.imgur.com/ytbfOW0.png", F: 3, S: 3, P: 3, I: 2, C: 6 },
+      { nome: "Matpat", imagem: "https://i.imgur.com/k2x0rkB.png", F: 2, S: 2, P: 2, I: 5, C: 5 }
     ];
 
-    const personagensLista = document.getElementById("personagensLista");
-    const tamanhoSelect = document.getElementById("tamanho");
-    const modoSelect = document.getElementById("modo");
-    const brackets = document.getElementById("brackets");
-    const jogosDiv = document.getElementById("jogos");
-    const resultadoFinal = document.getElementById("resultadoFinal");
-    const btnIniciar = document.getElementById("btnIniciar");
-
-    let rodadaAtual = [];
-    let proximaRodada = [];
-    let rodadaIndex = 0;
+    let usados = new Set();
 
     function renderPersonagens() {
-      personagensLista.innerHTML = "";
+      const container = document.getElementById("personagensLista");
+      container.innerHTML = "";
       personagens.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "personagemCard";
-        div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
-        div.draggable = true;
-        div.dataset.index = i;
-        div.addEventListener("dragstart", e => {
-          e.dataTransfer.setData("text/plain", i);
-        });
-        personagensLista.appendChild(div);
+        if (!usados.has(i)) {
+          const div = document.createElement("div");
+          div.className = "personagemCard";
+          div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
+          div.draggable = true;
+          div.dataset.index = i;
+          div.addEventListener("dragstart", e => {
+            e.dataTransfer.setData("text/plain", i);
+          });
+          container.appendChild(div);
+        }
       });
     }
 
     function criarBrackets(tamanho) {
-      brackets.innerHTML = "";
-      for (let i = 0; i < tamanho / 2; i++) {
+      const modo = document.getElementById("modo").value;
+      const container = document.getElementById("brackets");
+      container.innerHTML = "";
+      const totalTimes = tamanho / 2;
+      for (let i = 0; i < totalTimes; i++) {
         const div = document.createElement("div");
         div.className = "bracketMatch";
         div.ondragover = e => e.preventDefault();
         div.ondrop = e => {
-          const idx = e.dataTransfer.getData("text/plain");
-          const personagem = personagens[idx];
-          if (div.children.length < 2) {
+          const idx = parseInt(e.dataTransfer.getData("text/plain"));
+          if (!usados.has(idx)) {
+            const personagem = personagens[idx];
             const img = document.createElement("img");
             img.src = personagem.imagem;
             img.alt = personagem.nome;
             img.title = personagem.nome;
             div.appendChild(img);
+            usados.add(idx);
+            renderPersonagens();
           }
         };
-        brackets.appendChild(div);
+        container.appendChild(div);
       }
     }
 
-    function validarEIniciarTorneio() {
-      const partidas = [...brackets.children];
-      rodadaAtual = [];
-      for (const partida of partidas) {
-        if (partida.children.length !== 2) {
-          alert("Todas as partidas devem ter 2 personagens!");
-          return;
+    function preencherAleatoriamente() {
+      const brackets = document.querySelectorAll(".bracketMatch");
+      const restantes = personagens.map((_, i) => i).filter(i => !usados.has(i));
+      for (const bracket of brackets) {
+        while (bracket.children.length < 10 && restantes.length > 0) {
+          const idx = restantes.splice(Math.floor(Math.random() * restantes.length), 1)[0];
+          usados.add(idx);
+          const personagem = personagens[idx];
+          const img = document.createElement("img");
+          img.src = personagem.imagem;
+          img.alt = personagem.nome;
+          img.title = personagem.nome;
+          bracket.appendChild(img);
         }
-        const imgs = [...partida.children];
-        const p1 = personagens.find(p => p.nome === imgs[0].title);
-        const p2 = personagens.find(p => p.nome === imgs[1].title);
-        rodadaAtual.push(p1, p2);
       }
-      document.getElementById("menu").style.display = "none";
-      jogosDiv.style.display = "block";
-      rodadaIndex = 0;
-      mostrarProximaPartida();
+      renderPersonagens();
     }
 
-    function mostrarProximaPartida() {
-      jogosDiv.innerHTML = "";
-      if (rodadaIndex >= rodadaAtual.length) {
-        if (proximaRodada.length === 1) {
-          exibirCampeao(proximaRodada[0]);
-        } else {
-          rodadaAtual = [...proximaRodada];
-          proximaRodada = [];
-          rodadaIndex = 0;
-          mostrarProximaPartida();
-        }
-        return;
-      }
-      const p1 = rodadaAtual[rodadaIndex];
-      const p2 = rodadaAtual[rodadaIndex + 1];
+    document.getElementById("tamanho").addEventListener("change", e => {
+      usados.clear();
+      renderPersonagens();
+      criarBrackets(Number(e.target.value));
+    });
 
-      const jogo = document.createElement("div");
-      jogo.className = "jogo";
-      jogo.innerHTML = `
-        <div style="display: flex; justify-content: center; gap: 50px;">
-          <div>
-            <img src="${p1.imagem}" alt="${p1.nome}"><br><strong>${p1.nome}</strong>
-            <div class="status-box">F: ${p1.F} | S: ${p1.S} | P: ${p1.P} | I: ${p1.I} | C: ${p1.C}</div>
-          </div>
-          <div class="versus">VS</div>
-          <div>
-            <img src="${p2.imagem}" alt="${p2.nome}"><br><strong>${p2.nome}</strong>
-            <div class="status-box">F: ${p2.F} | S: ${p2.S} | P: ${p2.P} | I: ${p2.I} | C: ${p2.C}</div>
-          </div>
-        </div>
-        <br>
-        <button onclick="escolherVencedor(${rodadaIndex}, 0)">${p1.nome} venceu</button>
-        <button onclick="escolherVencedor(${rodadaIndex}, 1)" style="margin-left: 10px">${p2.nome} venceu</button>
-      `;
-      jogosDiv.appendChild(jogo);
-    }
+    document.getElementById("modo").addEventListener("change", () => {
+      usados.clear();
+      renderPersonagens();
+      criarBrackets(Number(document.getElementById("tamanho").value));
+    });
 
-    function escolherVencedor(index, quem) {
-      const vencedor = quem === 0 ? rodadaAtual[index] : rodadaAtual[index + 1];
-      proximaRodada.push(vencedor);
-      rodadaIndex += 2;
-      mostrarProximaPartida();
-    }
-
-    function exibirCampeao(vencedor) {
-      jogosDiv.style.display = "none";
-      resultadoFinal.style.display = "block";
-      resultadoFinal.innerHTML = `
-        <h2>🏆 Campeão: ${vencedor.nome} 🏆</h2>
-        <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width: 200px; height: 200px; border-radius: 20px;">
-        <br><br>
-        <button onclick="location.reload()">Voltar ao Início</button>
-      `;
-    }
-
-    tamanhoSelect.addEventListener("change", () => criarBrackets(Number(tamanhoSelect.value)));
-    modoSelect.addEventListener("change", () => criarBrackets(Number(tamanhoSelect.value)));
-    btnIniciar.addEventListener("click", validarEIniciarTorneio);
+    document.getElementById("btnIniciar").addEventListener("click", () => {
+      alert("A lógica completa do modo de times com batalhas de 5 personagens ainda será implementada.");
+    });
 
     renderPersonagens();
-    criarBrackets(Number(tamanhoSelect.value));
+    criarBrackets(Number(document.getElementById("tamanho").value));
   </script>
 </body>
 </html>
