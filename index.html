@@ -1,332 +1,252 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<title>Copa dos Personagens - Decida os Resultados</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #e2f0f9;
-    margin: 0;
-    padding: 20px;
-    color: #222;
-  }
-  h1, h2 {
-    color: #1a73e8;
-  }
-  #menu {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  #personagensLista {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 25px;
-    justify-content: center;
-  }
-  .personagemCard {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(26, 115, 232, 0.15);
-    width: 140px;
-    padding: 10px;
-    cursor: grab;
-    user-select: none;
-    text-align: center;
-    transition: transform 0.2s;
-  }
-  .personagemCard:hover {
-    transform: scale(1.05);
-  }
-  .personagemCard img {
-    width: 120px;
-    height: 120px;
-    border-radius: 15px;
-    object-fit: cover;
-  }
-  .status {
-    font-size: 13px;
-    margin-top: 6px;
-    color: #444;
-  }
-  #brackets {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 25px;
-  }
-  .bracketMatch {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(26, 115, 232, 0.2);
-    width: 170px;
-    min-height: 350px;
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: center;
-    gap: 8px;
-  }
-  .bracketMatch img {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-    object-fit: cover;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: border-color 0.3s;
-  }
-  .bracketMatch img.selected {
-    border-color: #1a73e8;
-  }
-  button {
-    background-color: #1a73e8;
-    border: none;
-    color: white;
-    padding: 12px 28px;
-    border-radius: 25px;
-    font-size: 18px;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s;
-  }
-  button:hover {
-    background-color: #0c47a1;
-  }
-  #jogos, #resultadoFinal {
-    max-width: 900px;
-    margin: 40px auto 0 auto;
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(26, 115, 232, 0.25);
-  }
-  .jogoEquipe {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    gap: 40px;
-    flex-wrap: wrap;
-  }
-  .timeEquipe {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 45%;
-  }
-  .personagemEquipe {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: #f1f7ff;
-    border-radius: 12px;
-    padding: 10px 15px;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.2s, box-shadow 0.2s;
-  }
-  .personagemEquipe:hover {
-    background-color: #d0e2ff;
-    box-shadow: 0 0 10px #1a73e8aa;
-  }
-  .personagemEquipe.selected {
-    background-color: #1a73e8;
-    color: white;
-    box-shadow: 0 0 15px #1a73e8cc;
-  }
-  .personagemEquipe img {
-    width: 90px;
-    height: 90px;
-    border-radius: 15px;
-    object-fit: cover;
-  }
-  .categoriaLabel {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 15px;
-    color: #0c47a1;
-  }
-  .placar {
-    font-size: 20px;
-    margin-top: 15px;
-    font-weight: 700;
-    color: #444;
-  }
-  #avisoEquipe {
-    color: #cc0000;
-    font-weight: 700;
-    margin-bottom: 15px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Copa dos Personagens</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #eef2f7;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    #menu, #jogos, #resultadoFinal {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    #personagensLista {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    .personagemCard {
+      width: 120px;
+      text-align: center;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .personagemCard img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .status {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    .bracketMatch {
+      border: 1px dashed #aaa;
+      min-height: 260px;
+      width: 160px;
+      background: #f1f1f1;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 10px;
+    }
+    #brackets {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .bracketMatch img {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .jogo {
+      text-align: center;
+    }
+    .jogo img {
+      width: 150px;
+      height: 150px;
+      border-radius: 10px;
+      margin: 10px;
+    }
+    .versus {
+      font-size: 24px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<div id="menu">
-  <h1>Copa dos Personagens - Decida os Resultados</h1>
-  <label for="modoSelect">Modo:</label>
-  <select id="modoSelect">
-    <option value="individual" selected>Individual</option>
-    <option value="equipe">Equipe (5 personagens por time)</option>
-  </select>
+  <div id="menu">
+    <h1>Copa dos Personagens</h1>
+    <label for="tamanho">Tamanho do torneio:</label>
+    <select id="tamanho">
+      <option value="4">4 Participantes</option>
+      <option value="8" selected>8 Participantes</option>
+    </select>
+    <div id="personagensLista"></div>
+    <div id="brackets"></div>
+    <button id="btnIniciar">Iniciar Torneio</button>
+  </div>
 
-  <br><br>
+  <div id="jogos" style="display:none;"></div>
+  <div id="resultadoFinal" style="display:none;"></div>
 
-  <label for="tamanho">Tamanho do torneio:</label>
-  <select id="tamanho">
-    <option value="4">4 Participantes</option>
-    <option value="8" selected>8 Participantes</option>
-  </select>
+  <script>
+    const personagens = [
+      { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png" },
+      { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png" },
+      { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png" },
+      { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png" },
+      { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png" },
+      { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png" },
+      { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png" },
+      { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png" }
+    ];
 
-  <h2>Arraste os personagens para as chaves:</h2>
-  <div id="avisoEquipe" style="display:none;">No modo equipe, cada time deve ter 5 personagens (arraste 5 para cada caixa)</div>
-  <div id="personagensLista"></div>
-  <div id="brackets"></div>
-  <button id="btnIniciar">Iniciar Torneio</button>
-</div>
+    const personagensLista = document.getElementById("personagensLista");
+    const tamanhoSelect = document.getElementById("tamanho");
+    const brackets = document.getElementById("brackets");
+    const jogosDiv = document.getElementById("jogos");
+    const resultadoFinal = document.getElementById("resultadoFinal");
+    const btnIniciar = document.getElementById("btnIniciar");
 
-<div id="jogos" style="display:none;"></div>
-<div id="resultadoFinal" style="display:none;"></div>
+    let rodadaAtual = [];
+    let proximaRodada = [];
+    let rodadaIndex = 0;
 
-<script>
-  const categorias = ["F", "S", "P", "I", "C"];
+    function renderPersonagens() {
+      personagensLista.innerHTML = "";
+      personagens.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "personagemCard";
+        div.innerHTML = `<img src="${p.imagem}" alt="${p.nome}"><br>${p.nome}`;
+        div.draggable = true;
+        div.dataset.index = i;
+        div.addEventListener("dragstart", e => {
+          e.dataTransfer.setData("text/plain", i);
+        });
+        personagensLista.appendChild(div);
+      });
+    }
 
-  const personagens = [
-    { nome: "Lu Fufu", imagem: "https://i.imgur.com/6BoV7d9.png", stats: {F:7, S:6, P:8, I:5, C:7} },
-    { nome: "Komi Shouko", imagem: "https://i.imgur.com/MTsAdDy.png", stats: {F:5, S:9, P:6, I:8, C:7} },
-    { nome: "Bocchi", imagem: "https://i.imgur.com/0cIWfYb.png", stats: {F:6, S:7, P:7, I:6, C:5} },
-    { nome: "C.C.", imagem: "https://i.imgur.com/MHDGXr5.png", stats: {F:8, S:5, P:9, I:7, C:6} },
-    { nome: "Aqua", imagem: "https://i.imgur.com/gJzUZ1u.png", stats: {F:4, S:6, P:5, I:7, C:9} },
-    { nome: "Denji", imagem: "https://i.imgur.com/NbSw4al.png", stats: {F:9, S:8, P:7, I:4, C:5} },
-    { nome: "Okabe", imagem: "https://i.imgur.com/NEX0nbf.png", stats: {F:5, S:6, P:5, I:9, C:7} },
-    { nome: "Pomni", imagem: "https://i.imgur.com/cZgrk2W.png", stats: {F:7, S:7, P:6, I:6, C:6} }
-  ];
+    function criarBrackets(tamanho) {
+      brackets.innerHTML = "";
+      for (let i = 0; i < tamanho / 2; i++) {
+        const div = document.createElement("div");
+        div.className = "bracketMatch";
+        div.ondragover = e => e.preventDefault();
+        div.ondrop = e => {
+          const idx = e.dataTransfer.getData("text/plain");
+          const personagem = personagens[idx];
+          if (div.children.length < 2) {
+            const img = document.createElement("img");
+            img.src = personagem.imagem;
+            img.alt = personagem.nome;
+            img.title = personagem.nome;
+            div.appendChild(img);
+          }
+        };
+        brackets.appendChild(div);
+      }
+    }
 
-  const personagensLista = document.getElementById("personagensLista");
-  const tamanhoSelect = document.getElementById("tamanho");
-  const brackets = document.getElementById("brackets");
-  const jogosDiv = document.getElementById("jogos");
-  const resultadoFinal = document.getElementById("resultadoFinal");
-  const modoSelect = document.getElementById("modoSelect");
-  const avisoEquipe = document.getElementById("avisoEquipe");
-  const btnIniciar = document.getElementById("btnIniciar");
+    function validarEIniciarTorneio() {
+      const partidas = [...brackets.children];
+      rodadaAtual = [];
+      for (const partida of partidas) {
+        if (partida.children.length !== 2) {
+          alert("Todas as partidas devem ter 2 personagens!");
+          return;
+        }
+        const imgs = [...partida.children];
+        rodadaAtual.push({ nome: imgs[0].title, imagem: imgs[0].src });
+        rodadaAtual.push({ nome: imgs[1].title, imagem: imgs[1].src });
+      }
+      document.getElementById("menu").style.display = "none";
+      jogosDiv.style.display = "block";
+      rodadaIndex = 0;
+      mostrarProximaPartida();
+    }
 
-  let rodadaAtual = [];
-  let proximaRodada = [];
-  let rodadaIndex = 0;
-  let modoEquipe = false;
+    function mostrarProximaPartida() {
+      jogosDiv.innerHTML = "";
+      if (rodadaIndex >= rodadaAtual.length) {
+        if (proximaRodada.length === 1) {
+          exibirCampeao(proximaRodada[0]);
+        } else {
+          rodadaAtual = [...proximaRodada];
+          proximaRodada = [];
+          rodadaIndex = 0;
+          mostrarProximaPartida();
+        }
+        return;
+      }
+      const p1 = rodadaAtual[rodadaIndex];
+      const p2 = rodadaAtual[rodadaIndex + 1];
 
-  // Para modo equipe
-  let subDueloIndex = 0;
-  let placarEquipe1 = 0;
-  let placarEquipe2 = 0;
-
-  function renderPersonagens() {
-    personagensLista.innerHTML = "";
-    personagens.forEach((p,i) => {
-      const div = document.createElement("div");
-      div.className = "personagemCard";
-      div.innerHTML = `
-        <img src="${p.imagem}" alt="${p.nome}">
-        <br>${p.nome}
-        <div class="status">
-          F: ${p.stats.F} | S: ${p.stats.S} | P: ${p.stats.P} | I: ${p.stats.I} | C: ${p.stats.C}
+      const jogo = document.createElement("div");
+      jogo.className = "jogo";
+      jogo.innerHTML = `
+        <div>
+          <img src="${p1.imagem}" alt="${p1.nome}"><br>${p1.nome}
         </div>
+        <div class="versus">VS</div>
+        <div>
+          <img src="${p2.imagem}" alt="${p2.nome}"><br>${p2.nome}
+        </div>
+        <br>
+        <button onclick="escolherVencedor(${rodadaIndex}, 0)">${p1.nome} venceu</button>
+        <button onclick="escolherVencedor(${rodadaIndex}, 1)" style="margin-left: 10px">${p2.nome} venceu</button>
       `;
-      div.draggable = true;
-      div.dataset.index = i;
-      div.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", i));
-      personagensLista.appendChild(div);
+      jogosDiv.appendChild(jogo);
+    }
+
+    function escolherVencedor(index, quem) {
+      const vencedor = quem === 0 ? rodadaAtual[index] : rodadaAtual[index + 1];
+      proximaRodada.push(vencedor);
+      rodadaIndex += 2;
+      mostrarProximaPartida();
+    }
+
+    function exibirCampeao(vencedor) {
+      jogosDiv.style.display = "none";
+      resultadoFinal.style.display = "block";
+      resultadoFinal.innerHTML = `
+        <h2>🏆 Campeão: ${vencedor.nome} 🏆</h2>
+        <img src="${vencedor.imagem}" alt="${vencedor.nome}" style="width: 200px; height: 200px; border-radius: 20px;">
+        <br><br>
+        <button onclick="location.reload()">Voltar ao Início</button>
+      `;
+    }
+
+    tamanhoSelect.addEventListener("change", () => {
+      criarBrackets(Number(tamanhoSelect.value));
     });
-  }
 
-  function criarBrackets(tamanho) {
-    brackets.innerHTML = "";
-    modoEquipe = modoSelect.value === "equipe";
-    avisoEquipe.style.display = modoEquipe ? "block" : "none";
+    btnIniciar.addEventListener("click", validarEIniciarTorneio);
 
-    if (modoEquipe) {
-      for(let i=0; i<tamanho/2; i++) {
-        const div = document.createElement("div");
-        div.className = "bracketMatch";
-        div.ondragover = e => e.preventDefault();
-        div.ondrop = e => {
-          const idx = e.dataTransfer.getData("text/plain");
-          const personagem = personagens[idx];
-          if(div.children.length < 5) {
-            for(let child of div.children) if(child.dataset.idx === idx) return;
-            const img = document.createElement("img");
-            img.src = personagem.imagem;
-            img.alt = personagem.nome;
-            img.title = personagem.nome;
-            img.dataset.idx = idx;
-            div.appendChild(img);
-          }
-        };
-        brackets.appendChild(div);
-      }
-    } else {
-      for(let i=0; i<tamanho/2; i++) {
-        const div = document.createElement("div");
-        div.className = "bracketMatch";
-        div.ondragover = e => e.preventDefault();
-        div.ondrop = e => {
-          const idx = e.dataTransfer.getData("text/plain");
-          const personagem = personagens[idx];
-          if(div.children.length < 2) {
-            const imgs = Array.from(div.children);
-            if(imgs.some(im => im.dataset.idx === idx)) return;
-            const img = document.createElement("img");
-            img.src = personagem.imagem;
-            img.alt = personagem.nome;
-            img.title = personagem.nome;
-            img.dataset.idx = idx;
-            div.appendChild(img);
-          }
-        };
-        brackets.appendChild(div);
-      }
-    }
-  }
-
-  function validarEIniciarTorneio() {
-    const partidas = Array.from(brackets.children);
-    rodadaAtual = [];
-    proximaRodada = [];
-    rodadaIndex = 0;
-    subDueloIndex = 0;
-    placarEquipe1 = 0;
-    placarEquipe2 = 0;
-    modoEquipe = modoSelect.value === "equipe";
-
-    if(modoEquipe){
-      for(const partida of partidas){
-        if(partida.children.length !== 5){
-          alert("Cada time deve ter 5 personagens!");
-          return;
-        }
-        const time = [];
-        for(const img of partida.children){
-          time.push(personagens[Number(img.dataset.idx)]);
-        }
-        rodadaAtual.push(time);
-      }
-    } else {
-      for(const partida of partidas){
-        if(partida.children.length !== 2){
-          alert("Cada partida deve ter 2 personagens!");
-          return;
-        }
-        const imgs = Array.from(partida.children);
-        rodadaAtual.push(personagens[Number(imgs[0].dataset.idx)]);
-        rodadaAtual.push(personagens[Number(imgs[1].dataset.idx)]);
-      }
-    }
-    document.getElementById("menu").style.display = "none";
-    jogosDiv.style.display = "block";
-    resultadoFinal.style.display = "none";
-    mostrarProximaPartida();
-  }
-
-  function mostrarProxima
+    renderPersonagens();
+    criarBrackets(Number(tamanhoSelect.value));
+  </script>
+</body>
+</html>
